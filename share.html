@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>show</title>
+    <link rel="stylesheet" type="text/css" href="https://unpkg.com/vditor@3.8.15/dist/index.css"/>
+    <script src="https://unpkg.com/vditor@3.8.15/dist/js/i18n/zh_CN.js"></script>
+    <script src="https://unpkg.com/vditor@3.8.15/dist/method.min.js"></script>
+    <!-- crypto -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.1.1/crypto-js.min.js"></script>
+</head>
+<body>
+<div id="content"></div>
+</body>
+<script>
+    function decryptData(encryptedData, password) {
+        const salt = CryptoJS.lib.WordArray.create(encryptedData.slice(0, 16));
+        const iv = CryptoJS.lib.WordArray.create(encryptedData.slice(16, 32));
+        const ciphertext = CryptoJS.lib.WordArray.create(encryptedData.slice(32));
+        const key = CryptoJS.PBKDF2(password, salt, {
+            keySize: 256 / 32,
+            iterations: 1000,
+            hasher: CryptoJS.algo.SHA256
+        });
+        const decrypted = CryptoJS.AES.decrypt(
+            {ciphertext: ciphertext},
+            key,
+            {iv: iv, mode: CryptoJS.mode.CBC, padding: CryptoJS.pad.Pkcs7}
+        );
+        const decryptedText = decrypted.toString(CryptoJS.enc.Utf8);
+        return decryptedText ? decryptedText : 'Decryption failed';
+    }
+
+    function showMD(markdownString) {
+         const container = document.getElementById('content');
+            Vditor.preview(container, markdownString, {
+                cdn: 'https://unpkg.com/vditor@3.8.15',
+                mode: 'light',
+                hljs: {
+                    style: 'github',
+                    lineNumber: true,
+                },
+                mermaid: {
+                    theme: 'github'
+                },
+                speech: {
+                    enable: true,
+                },
+                math: {
+                    engine: 'KaTeX',
+                    macros: {},
+                },
+                chart: {
+                    theme: 'light',
+                },
+            });
+    }
+  
+    const urlParams = new URLSearchParams(window.location.search);
+    const src = urlParams.get('src')
+    const password = urlParams.get('key');  //密钥
+    fetch(src)
+        .then(response => response.arrayBuffer())
+        .then(buffer => {
+            const decryptedText = decryptData(new Uint8Array(buffer), password);
+            showMD(decryptedText)
+        })
+        .catch(error => console.error('Error:', error));
+</script>
+</html>
