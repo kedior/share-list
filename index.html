@@ -10,56 +10,80 @@
     <!-- crypto -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.1.1/crypto-js.min.js"></script>
 </head>
+
+<style>
+    /* 使渲染后的Markdown内容响应式 */
+    .markdown-body {
+      box-sizing: border-box;
+      min-width: 200px;
+      max-width: 980px;
+      margin: 0 auto;
+      padding: 45px;
+    }
+
+    @media (max-width: 767px) {
+      .markdown-body {
+        padding: 15px;
+      }
+    }
+  </style>
+
 <body>
-<div id="content"></div>
+<div id="content" class="markdown-body"></div>
 </body>
 <script>
     function decryptData(encryptedData, password) {
-        const salt = CryptoJS.lib.WordArray.create(encryptedData.slice(0, 16));
-        const iv = CryptoJS.lib.WordArray.create(encryptedData.slice(16, 32));
-        const ciphertext = CryptoJS.lib.WordArray.create(encryptedData.slice(32));
+        // 提取盐值、IV 和密文
+        const salt = CryptoJS.lib.WordArray.create(encryptedData.slice(0, 16)); // 16 字节盐值
+        const iv = CryptoJS.lib.WordArray.create(encryptedData.slice(16, 32));  // 16 字节 IV
+        const ciphertext = CryptoJS.lib.WordArray.create(encryptedData.slice(32)); // 剩余部分是密文
+
+        // 使用 PBKDF2 从密码和盐生成密钥
         const key = CryptoJS.PBKDF2(password, salt, {
             keySize: 256 / 32,
             iterations: 1000,
             hasher: CryptoJS.algo.SHA256
         });
+
+        // 执行解密
         const decrypted = CryptoJS.AES.decrypt(
             {ciphertext: ciphertext},
             key,
             {iv: iv, mode: CryptoJS.mode.CBC, padding: CryptoJS.pad.Pkcs7}
         );
+        // 转换解密后的内容为 UTF-8 字符串
         const decryptedText = decrypted.toString(CryptoJS.enc.Utf8);
         return decryptedText ? decryptedText : 'Decryption failed';
     }
 
     function showMD(markdownString) {
-         const container = document.getElementById('content');
-            Vditor.preview(container, markdownString, {
-                cdn: 'https://unpkg.com/vditor@3.8.15',
-                mode: 'light',
-                hljs: {
-                    style: 'github',
-                    lineNumber: true,
-                },
-                mermaid: {
-                    theme: 'github'
-                },
-                speech: {
-                    enable: true,
-                },
-                math: {
-                    engine: 'KaTeX',
-                    macros: {},
-                },
-                chart: {
-                    theme: 'light',
-                },
-            });
+        const container = document.getElementById('content');
+        Vditor.preview(container, markdownString, {
+            cdn: 'https://unpkg.com/vditor@3.8.15',
+            mode: 'light',
+            hljs: {
+                style: 'github',
+                lineNumber: true,
+            },
+            mermaid: {
+                theme: 'github'
+            },
+            speech: {
+                enable: true,
+            },
+            math: {
+                engine: 'KaTeX',
+                macros: {},
+            },
+            chart: {
+                theme: 'light',
+            },
+        });
     }
-  
+
     const urlParams = new URLSearchParams(window.location.search);
     const src = urlParams.get('src')
-    const password = urlParams.get('key');  //密钥
+    const password = urlParams.get('key');  // 获取URL中的密钥
     fetch(src)
         .then(response => response.arrayBuffer())
         .then(buffer => {
