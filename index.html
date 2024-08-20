@@ -14,19 +14,19 @@
 <style>
     /* 使渲染后的Markdown内容响应式 */
     .markdown-body {
-      box-sizing: border-box;
-      min-width: 200px;
-      max-width: 980px;
-      margin: 0 auto;
-      padding: 45px;
+        box-sizing: border-box;
+        min-width: 200px;
+        max-width: 980px;
+        margin: 0 auto;
+        padding: 10px 30px 100px;
     }
 
     @media (max-width: 767px) {
-      .markdown-body {
-        padding: 15px;
-      }
+        .markdown-body {
+            padding: 15px;
+        }
     }
-  </style>
+</style>
 
 <body>
 <div id="content" class="markdown-body"></div>
@@ -65,6 +65,7 @@
             },
         });
     }
+
     showMD('# try loading...\n### please wait...')
     const urlParams = new URLSearchParams(window.location.search);
     const src = urlParams.get('src')
