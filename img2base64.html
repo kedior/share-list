@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>图片压缩和Base64编码</title>
+</head>
+<body>
+    <h2>粘贴图片并选择压缩程度</h2>
+    <input type="range" id="quality-range" min="0" max="100" value="80">
+    <span id="quality-value">80</span>%<br><br>
+    <button id="compress-button" disabled>确定</button>
+    <p>预计输出大小: <span id="output-size">-</span></p>
+    <img id="output-image" alt="输出图像" style="max-width: 100%; display:none;"><br><br>
+    <textarea id="base64-output" style="width: 100%; height: 100px;" readonly></textarea>
+
+    <script>
+        let imgFile = null;
+
+        // 更新质量值显示
+        const qualityRange = document.getElementById("quality-range");
+        const qualityValue = document.getElementById("quality-value");
+        qualityRange.addEventListener("input", () => {
+            qualityValue.textContent = qualityRange.value;
+            if (imgFile) updateOutputSize();
+        });
+
+        // 处理粘贴事件
+        document.addEventListener('paste', (event) => {
+            const items = event.clipboardData.items;
+            for (let i = 0; i < items.length; i++) {
+                if (items[i].type.indexOf("image") !== -1) {
+                    imgFile = items[i].getAsFile();
+                    document.getElementById("compress-button").disabled = false;
+                    updateOutputSize();
+                    break;
+                }
+            }
+        });
+
+        // 更新预计输出大小
+        function updateOutputSize() {
+            if (!imgFile) return;
+            const reader = new FileReader();
+            reader.readAsDataURL(imgFile);
+            reader.onload = function(event) {
+                const img = new Image();
+                img.src = event.target.result;
+                img.onload = function() {
+                    const canvas = document.createElement("canvas");
+                    const ctx = canvas.getContext("2d");
+                    canvas.width = img.width;
+                    canvas.height = img.height;
+                    ctx.drawImage(img, 0, 0);
+                    canvas.toBlob((blob) => {
+                        document.getElementById("output-size").textContent = Math.round(blob.size / 1024) + " KB";
+                    }, "image/jpeg", qualityRange.value / 100);
+                };
+            };
+        }
+
+        // 处理压缩和输出Base64
+        document.getElementById("compress-button").addEventListener("click", () => {
+            if (!imgFile) return;
+            const reader = new FileReader();
+            reader.readAsDataURL(imgFile);
+            reader.onload = function(event) {
+                const img = new Image();
+                img.src = event.target.result;
+                img.onload = function() {
+                    const canvas = document.createElement("canvas");
+                    const ctx = canvas.getContext("2d");
+                    canvas.width = img.width;
+                    canvas.height = img.height;
+                    ctx.drawImage(img, 0, 0);
+                    canvas.toBlob((blob) => {
+                        const base64Output = document.getElementById("base64-output");
+                        const outputImage = document.getElementById("output-image");
+                        const reader = new FileReader();
+                        reader.readAsDataURL(blob);
+                        reader.onload = function(event) {
+                            outputImage.src = event.target.result;
+                            outputImage.style.display = "block";
+                            base64Output.value = event.target.result;
+                        };
+                    }, "image/jpeg", qualityRange.value / 100);
+                };
+            };
+        });
+    </script>
+</body>
+</html>
+

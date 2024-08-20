@@ -65,7 +65,7 @@
             },
         });
     }
-
+    showMD('# try loading...\n### please wait...')
     const urlParams = new URLSearchParams(window.location.search);
     const src = urlParams.get('src')
     const password = urlParams.get('key');
@@ -73,8 +73,11 @@
         .then(response => response.arrayBuffer())
         .then(buffer => {
             const decryptedText = decryptData(new Uint8Array(buffer), password);
-            showMD(decryptedText)
+            showMD(decryptedText);
         })
-        .catch(error => console.error('Error:', error));
+        .catch(error => {
+            console.error('Error:', error);
+            showMD('# failed to parse!')
+        });
 </script>
 </html>
