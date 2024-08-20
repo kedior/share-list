@@ -3,26 +3,44 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>图片压缩和Base64编码</title>
+    <title>图片缩放压缩>>Base64</title>
 </head>
 <body>
-    <h2>粘贴图片并选择压缩程度</h2>
+    <h2>粘贴图片并选择压缩程度和尺寸</h2>
+
+    <label for="quality-range">压缩程度：</label>
     <input type="range" id="quality-range" min="0" max="100" value="80">
     <span id="quality-value">80</span>%<br><br>
+
+    <label for="scale-range">缩放比例：</label>
+    <input type="range" id="scale-range" min="10" max="100" value="100">
+    <span id="scale-value">100</span>%<br><br>
+
     <button id="compress-button" disabled>确定</button>
+    <p>原始尺寸: <span id="original-size">-</span></p>
+    <p>预计缩放后的尺寸: <span id="scaled-size">-</span></p>
     <p>预计输出大小: <span id="output-size">-</span></p>
     <img id="output-image" alt="输出图像" style="max-width: 100%; display:none;"><br><br>
+    <h3>base64 output:</h3>
     <textarea id="base64-output" style="width: 100%; height: 100px;" readonly></textarea>
 
     <script>
         let imgFile = null;
 
-        // 更新质量值显示
+        // 更新质量值和缩放比例显示
         const qualityRange = document.getElementById("quality-range");
         const qualityValue = document.getElementById("quality-value");
+        const scaleRange = document.getElementById("scale-range");
+        const scaleValue = document.getElementById("scale-value");
+
         qualityRange.addEventListener("input", () => {
             qualityValue.textContent = qualityRange.value;
             if (imgFile) updateOutputSize();
+        });
+
+        scaleRange.addEventListener("input", () => {
+            scaleValue.textContent = scaleRange.value;
+            if (imgFile) displayImageSizes();
         });
 
         // 处理粘贴事件
@@ -32,11 +50,35 @@
                 if (items[i].type.indexOf("image") !== -1) {
                     imgFile = items[i].getAsFile();
                     document.getElementById("compress-button").disabled = false;
-                    updateOutputSize();
+                    displayImageSizes();
+                    document.getElementById("compress-button").click();
                     break;
                 }
             }
         });
+
+        // 显示原始尺寸和预计缩放后的尺寸
+        function displayImageSizes() {
+            if (!imgFile) return;
+            const reader = new FileReader();
+            reader.readAsDataURL(imgFile);
+            reader.onload = function(event) {
+                const img = new Image();
+                img.src = event.target.result;
+                img.onload = function() {
+                    const originalWidth = img.width;
+                    const originalHeight = img.height;
+                    document.getElementById("original-size").textContent = `${originalWidth} x ${originalHeight} px`;
+
+                    const scale = scaleRange.value / 100;
+                    const scaledWidth = Math.round(originalWidth * scale);
+                    const scaledHeight = Math.round(originalHeight * scale);
+                    document.getElementById("scaled-size").textContent = `${scaledWidth} x ${scaledHeight} px`;
+
+                    updateOutputSize();
+                };
+            };
+        }
 
         // 更新预计输出大小
         function updateOutputSize() {
@@ -47,11 +89,12 @@
                 const img = new Image();
                 img.src = event.target.result;
                 img.onload = function() {
+                    const scale = scaleRange.value / 100;
                     const canvas = document.createElement("canvas");
                     const ctx = canvas.getContext("2d");
-                    canvas.width = img.width;
-                    canvas.height = img.height;
-                    ctx.drawImage(img, 0, 0);
+                    canvas.width = img.width * scale;
+                    canvas.height = img.height * scale;
+                    ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
                     canvas.toBlob((blob) => {
                         document.getElementById("output-size").textContent = Math.round(blob.size / 1024) + " KB";
                     }, "image/jpeg", qualityRange.value / 100);
@@ -59,7 +102,7 @@
             };
         }
 
-        // 处理压缩和输出Base64
+        // 处理压缩、缩放和输出Base64
         document.getElementById("compress-button").addEventListener("click", () => {
             if (!imgFile) return;
             const reader = new FileReader();
@@ -68,11 +111,12 @@
                 const img = new Image();
                 img.src = event.target.result;
                 img.onload = function() {
+                    const scale = scaleRange.value / 100;
                     const canvas = document.createElement("canvas");
                     const ctx = canvas.getContext("2d");
-                    canvas.width = img.width;
-                    canvas.height = img.height;
-                    ctx.drawImage(img, 0, 0);
+                    canvas.width = img.width * scale;
+                    canvas.height = img.height * scale;
+                    ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
                     canvas.toBlob((blob) => {
                         const base64Output = document.getElementById("base64-output");
                         const outputImage = document.getElementById("output-image");
@@ -90,4 +134,3 @@
     </script>
 </body>
 </html>
-
