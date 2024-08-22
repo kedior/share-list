@@ -9,14 +9,15 @@
     <meta name="mobile-web-app-capable" content="yes"/>
     <meta name="apple-mobile-web-app-status-bar-style" content="black"/>
     <title>loading...</title>
+    <link rel="dns-prefetch" href="https://cdn.jsdelivr.net"/>
+    <link rel="preconnect" href="https://cdn.jsdelivr.net"/>
+    <link rel="icon" type="image/png" href="https://github.com/fluidicon.png"/>
+    <link rel="apple-touch-icon" href="https://github.com/fluidicon.png"/>
+    <link rel="shortcut icon" type="image/x-icon" href="https://github.com/fluidicon.png"/>
+    <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/vditor@3.10.5/dist/index.min.css"/>
 
-    <link rel="icon" type="image/png" href="vditor/dist/images/emoji/wulian.png"/>
-    <link rel="apple-touch-icon" href="vditor/dist/images/emoji/wulian.png"/>
-    <link rel="shortcut icon" type="image/x-icon" href="vditor/dist/images/emoji/wulian.png"/>
-    <link rel="stylesheet" type="text/css" href="vditor/dist/index.css"/>
-
-    <script src="vditor/dist/method.js"></script>
-    <script src="vditor/dist/js/i18n/zh_CN.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/vditor@3.10.5/dist/method.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/vditor@3.10.5/dist/js/i18n/zh_CN.min.js"></script>
     <!-- crypto -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.2.0/crypto-js.min.js"></script>
 </head>
@@ -73,7 +74,7 @@
         return decryptedText ? decryptedText : "Decryption failed";
     }
 
-    function showMD(markdownString) {
+    async function showMD(markdownString) {
         let title = markdownString;
         title = title.substring(title.search('#'));
         title = title.substring(title.search(' '));
@@ -82,38 +83,40 @@
         document.title = title.trim();
 
         const container = document.getElementById("content");
-        Vditor.preview(container, markdownString, {
-            cdn: 'vditor',
+        await Vditor.preview(container, markdownString, {
+            cdn: 'https://cdn.jsdelivr.net/npm/vditor@3.10.5',
             theme: {
                 current: "light",
-                path: "vditor/dist/css/content-theme"
+                path: "https://cdn.jsdelivr.net/npm/vditor@3.10.5/dist/css/content-theme"
             },
             hljs: {
                 style: "dracula",
                 lineNumber: true,
             },
             hint: {
-                emojiPath: "vditor/dist/images/emoji"
+                emojiPath: "https://cdn.jsdelivr.net/npm/vditor@3.10.5/dist/images/emoji"
             }
         });
     }
 
-    showMD("# try loading...\n### please wait...");
-    const urlParams = new URLSearchParams(window.location.search);
-    const src = urlParams.get("src");
-    const password = urlParams.get("key");
-    fetch(src)
-        .then((response) => response.arrayBuffer())
-        .then((buffer) => {
-            const decryptedText = decryptData(
-                new Uint8Array(buffer),
-                password,
-            );
-            showMD(decryptedText);
-        })
-        .catch((error) => {
-            console.error("Error:", error);
-            showMD("# failed to parse!");
-        });
+    (async () => {
+        await showMD("# try loading...\n### please wait...");
+        const urlParams = new URLSearchParams(window.location.search);
+        const src = urlParams.get("src");
+        const password = urlParams.get("key");
+        fetch(src)
+            .then((response) => response.arrayBuffer())
+            .then((buffer) => {
+                const decryptedText = decryptData(
+                    new Uint8Array(buffer),
+                    password,
+                );
+                showMD(decryptedText);
+            })
+            .catch((error) => {
+                console.error("Error:", error);
+                showMD("# failed to parse!");
+            });
+    })();
 </script>
 </html>
