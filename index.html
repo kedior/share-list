@@ -1,25 +1,25 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
 <head>
     <meta charset="utf-8"/>
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge"/>
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0"/>
-    <meta name="theme-color" content="#f1f7fe">
-    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="theme-color" content="#f1f7fe"/>
+    <meta name="apple-mobile-web-app-capable" content="yes"/>
     <meta name="mobile-web-app-capable" content="yes"/>
-    <meta name="apple-mobile-web-app-status-bar-style" content="black">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black"/>
     <title>something to share</title>
-    <link rel="dns-prefetch" href="https://unpkg.com"/>
-    <link rel="preconnect" href="https://unpkg.com">
+    <link rel="dns-prefetch" href="https://cdn.jsdelivr.net"/>
+    <link rel="preconnect" href="https://cdn.jsdelivr.net"/>
     <link rel="icon" type="image/png" href="https://github.com/fluidicon.png"/>
-    <link rel="apple-touch-icon" href="https://github.com/fluidicon.png">
-    <link relL="shortcut icon" type="image/x-icon" href="https://github.com/fluidicon.png">
+    <link rel="apple-touch-icon" href="https://github.com/fluidicon.png"/>
+    <link relL="shortcut icon" type="image/x-icon" href="https://github.com/fluidicon.png"/>
+    <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/vditor@3.10.5/dist/index.min.css"/>
 
-    <link rel="stylesheet" type="text/css" href="https://unpkg.com/vditor@latest/dist/index.css"/>
-    <script src="https://unpkg.com/vditor@latest/dist/js/i18n/zh_CN.js"></script>
-    <script src="https://unpkg.com/vditor@latest/dist/method.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/vditor@3.10.5/dist/method.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/vditor@3.10.5/dist/js/i18n/zh_CN.min.js"></script>
     <!-- crypto -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.1.1/crypto-js.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.2.0/crypto-js.min.js"></script>
 </head>
 
 <style>
@@ -44,52 +44,70 @@
 </body>
 <script>
     function decryptData(encryptedData, password) {
-        const salt = CryptoJS.lib.WordArray.create(encryptedData.slice(0, 16));
-        const iv = CryptoJS.lib.WordArray.create(encryptedData.slice(16, 32));
-        const ciphertext = CryptoJS.lib.WordArray.create(encryptedData.slice(32));
+        const salt = CryptoJS.lib.WordArray.create(
+            encryptedData.slice(0, 16),
+        );
+        const iv = CryptoJS.lib.WordArray.create(
+            encryptedData.slice(16, 32),
+        );
+        const ciphertext = CryptoJS.lib.WordArray.create(
+            encryptedData.slice(32),
+        );
 
         const key = CryptoJS.PBKDF2(password, salt, {
             keySize: 256 / 32,
             iterations: 1000,
-            hasher: CryptoJS.algo.SHA256
+            hasher: CryptoJS.algo.SHA256,
         });
 
         const decrypted = CryptoJS.AES.decrypt(
             {ciphertext: ciphertext},
             key,
-            {iv: iv, mode: CryptoJS.mode.CBC, padding: CryptoJS.pad.Pkcs7}
+            {
+                iv: iv,
+                mode: CryptoJS.mode.CBC,
+                padding: CryptoJS.pad.Pkcs7,
+            },
         );
 
         const decryptedText = decrypted.toString(CryptoJS.enc.Utf8);
-        return decryptedText ? decryptedText : 'Decryption failed';
+        return decryptedText ? decryptedText : "Decryption failed";
     }
 
     function showMD(markdownString) {
-        const container = document.getElementById('content');
+        const container = document.getElementById("content");
         Vditor.preview(container, markdownString, {
+            cdn: 'https://cdn.jsdelivr.net/npm/vditor@3.10.5',
             theme: {
-                current: 'light',
+                current: "ant design",
+                path: "https://cdn.jsdelivr.net/npm/vditor@3.10.5/dist/css/content-theme"
             },
             hljs: {
-                style: 'dracula',
+                style: "dracula",
                 lineNumber: true,
             },
+            hint: {
+                emojiPath: "https://cdn.jsdelivr.net/npm/vditor@3.10.5/dist/images/emoji"
+            }
         });
     }
 
-    showMD('# try loading...\n### please wait...')
+    showMD("# try loading...\n### please wait...");
     const urlParams = new URLSearchParams(window.location.search);
-    const src = urlParams.get('src')
-    const password = urlParams.get('key');
+    const src = urlParams.get("src");
+    const password = urlParams.get("key");
     fetch(src)
-        .then(response => response.arrayBuffer())
-        .then(buffer => {
-            const decryptedText = decryptData(new Uint8Array(buffer), password);
+        .then((response) => response.arrayBuffer())
+        .then((buffer) => {
+            const decryptedText = decryptData(
+                new Uint8Array(buffer),
+                password,
+            );
             showMD(decryptedText);
         })
-        .catch(error => {
-            console.error('Error:', error);
-            showMD('# failed to parse!')
+        .catch((error) => {
+            console.error("Error:", error);
+            showMD("# failed to parse!");
         });
 </script>
 </html>
