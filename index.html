@@ -8,16 +8,15 @@
     <meta name="apple-mobile-web-app-capable" content="yes"/>
     <meta name="mobile-web-app-capable" content="yes"/>
     <meta name="apple-mobile-web-app-status-bar-style" content="black"/>
-    <title>something to share</title>
-    <link rel="dns-prefetch" href="https://cdn.jsdelivr.net"/>
-    <link rel="preconnect" href="https://cdn.jsdelivr.net"/>
-    <link rel="icon" type="image/png" href="https://github.com/fluidicon.png"/>
-    <link rel="apple-touch-icon" href="https://github.com/fluidicon.png"/>
-    <link relL="shortcut icon" type="image/x-icon" href="https://github.com/fluidicon.png"/>
-    <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/vditor@3.10.5/dist/index.min.css"/>
+    <title>loading...</title>
 
-    <script src="https://cdn.jsdelivr.net/npm/vditor@3.10.5/dist/method.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/vditor@3.10.5/dist/js/i18n/zh_CN.min.js"></script>
+    <link rel="icon" type="image/png" href="vditor/dist/images/emoji/wulian.png"/>
+    <link rel="apple-touch-icon" href="vditor/dist/images/emoji/wulian.png"/>
+    <link rel="shortcut icon" type="image/x-icon" href="vditor/dist/images/emoji/wulian.png"/>
+    <link rel="stylesheet" type="text/css" href="vditor/dist/index.css"/>
+
+    <script src="vditor/dist/method.js"></script>
+    <script src="vditor/dist/js/i18n/zh_CN.js"></script>
     <!-- crypto -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.2.0/crypto-js.min.js"></script>
 </head>
@@ -75,19 +74,26 @@
     }
 
     function showMD(markdownString) {
+        let title = markdownString;
+        title = title.substring(title.search('#'));
+        title = title.substring(title.search(' '));
+        let end = title.search('\n');
+        if (end >= 0) title = title.substring(0, end);
+        document.title = title.trim();
+
         const container = document.getElementById("content");
         Vditor.preview(container, markdownString, {
-            cdn: 'https://cdn.jsdelivr.net/npm/vditor@3.10.5',
+            cdn: 'vditor',
             theme: {
                 current: "light",
-                path: "https://cdn.jsdelivr.net/npm/vditor@3.10.5/dist/css/content-theme"
+                path: "vditor/dist/css/content-theme"
             },
             hljs: {
                 style: "dracula",
                 lineNumber: true,
             },
             hint: {
-                emojiPath: "https://cdn.jsdelivr.net/npm/vditor@3.10.5/dist/images/emoji"
+                emojiPath: "vditor/dist/images/emoji"
             }
         });
     }
