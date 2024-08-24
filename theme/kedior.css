@@ -2,6 +2,10 @@
     color: #34495e;
 }
 
+.vditor-reset h1 {
+    font-size: 2em;
+}
+
 .vditor-reset h1, .vditor-reset h2 {
     border-bottom: 1px solid rgba(11, 50, 137, 0.1)
 }
