@@ -3,7 +3,6 @@
 }
 
 .vditor-reset h1, .vditor-reset h2 {
-    /*padding: 0.2em;*/
     border-bottom: 1px solid rgba(11, 50, 137, 0.1)
 }
 
@@ -16,12 +15,16 @@
     border: 1px solid rgba(11, 50, 137);
     padding: 10px 15px;
     border-radius: 15px;
-    color: rgba(11, 50, 137, 0.7);
+    color: rgba(11, 50, 137, 0.5);
     background-color: rgba(227, 249, 253, 0.2);
 }
 
 .vditor-reset iframe {
     border: 1px solid rgba(11, 50, 137, 0.3)
+}
+
+.vditor-reset table th {
+    background-color: rgba(227, 249, 253, 1)
 }
 
 
@@ -31,7 +34,7 @@
 }
 
 .vditor-reset table td, .vditor-reset table th {
-    border: 1px solid rgba(11, 50, 137, 0.2)
+    border: 1px solid rgba(11, 50, 137, 0.2);
 }
 
 .vditor-reset table tbody tr:nth-child(2n) {
@@ -40,10 +43,9 @@
 
 .vditor-reset code:not(.hljs):not(.highlight-chroma) {
     padding: 2px 4px;
-    background-color: rgba(227, 249, 253, 0.2);
+    background-color: rgba(227, 249, 253);
     color: rgb(11, 50, 137);
     border-radius: 2px;
-    box-shadow: 0 0 1px 0 rgba(11, 50, 137, 0.7);
 }
 
 .vditor-reset kbd {
