@@ -69,8 +69,7 @@
             },
         );
 
-        const decryptedText = decrypted.toString(CryptoJS.enc.Utf8);
-        return decryptedText ? decryptedText : "Decryption failed";
+        return decrypted.toString(CryptoJS.enc.Utf8);
     }
 
     async function showMD(markdownString) {
@@ -82,6 +81,7 @@
                 if (end >= 0) title = title.substring(0, end);
                 document.title = title.trim();
             })(markdownString),
+
             Vditor.preview(document.getElementById("content"), markdownString, {
                 cdn: 'vditor',
                 theme: {
@@ -90,7 +90,6 @@
                 },
                 hljs: {
                     style: "ant-design",
-                    lineNumber: true,
                 },
                 hint: {
                     emojiPath: "vditor/dist/images/emoji"
@@ -102,14 +101,17 @@
     const urlParams = new URLSearchParams(window.location.search);
     const src = urlParams.get("src");
     const password = urlParams.get("key");
-    showMD('# try parsing...')
-        .then(() => fetch(src))
-        .then(response => response.arrayBuffer())
-        .then(buffer => decryptData(new Uint8Array(buffer), password))
-        .then(decryptedText => showMD(decryptedText))
-        .catch((error) => {
-            showMD("# failed to parse!");
-            console.error(error);
-        });
+
+    Promise.all([
+        showMD('# try parsing...'),
+        fetch(src)
+            .then(response => response.arrayBuffer())
+            .then(buffer => decryptData(new Uint8Array(buffer), password))
+            .catch(err => {
+                console.log(err);
+                return "# failed to parse!"
+            })
+    ]).then(ret => showMD(ret[1]))
+    
 </script>
 </html>
