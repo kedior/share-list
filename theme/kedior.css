@@ -33,12 +33,12 @@
 
 
 .vditor-reset table tr {
-    border-top: 1px solid rgba(11, 50, 137, 0.3);
-    background-color: rgba(227, 249, 253, 0.2)
+    border-top: 1px solid rgba(11, 50, 137, 0.4);
+    background-color: rgba(227, 249, 253, 0.35)
 }
 
 .vditor-reset table td, .vditor-reset table th {
-    border: 1px solid rgba(11, 50, 137, 0.2);
+    border: 1px solid rgba(11, 50, 137, 0.4);
 }
 
 .vditor-reset table tbody tr:nth-child(2n) {
