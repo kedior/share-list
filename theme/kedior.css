@@ -46,6 +46,7 @@
 }
 
 .vditor-reset code:not(.hljs):not(.highlight-chroma) {
+    font-size: 16px;
     padding: 2px 4px;
     background-color: rgba(227, 249, 253);
     color: rgb(11, 50, 137);
