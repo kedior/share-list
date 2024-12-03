@@ -5,6 +5,11 @@
     letter-spacing: 0.04em;
 }
 
+.vditor-reset p {
+    margin-top:0.5em;
+    margin-bottom:0.5em;
+}
+
 .vditor-reset h1,
 .vditor-reset h2,
 .vditor-reset h3,
