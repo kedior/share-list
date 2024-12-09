@@ -135,6 +135,7 @@
     }
 
     async function downloadTrigger(jsonData) {
+        console.log(jsonData)
         // 检查必要字段
         if (!jsonData.filename || !jsonData.mimetype || !jsonData.data) {
             throw new Error("JSON 数据缺少必要的字段！");
