@@ -135,7 +135,6 @@
     }
 
     async function downloadTrigger(jsonData) {
-        console.log(jsonData)
         // 检查必要字段
         if (!jsonData.filename || !jsonData.mimetype || !jsonData.data) {
             throw new Error("JSON 数据缺少必要的字段！");
@@ -168,10 +167,11 @@
         downloadButton.disabled = true;
         try {
             note.textContent = "Downloading...";
-            const arr = await downloadFile(src, password)
+            const arr = await downloadFile(src)
 
             note.textContent = "Parsing...";
-            const jsonData = decryptData(arr, password)
+            const jsonStr = decryptData(arr, password)
+            const jsonData = JSON.parse(jsonStr);
             await downloadTrigger(jsonData);
             note.innerText = "Completed!"
         } catch (err) {
