@@ -1,66 +1,70 @@
 <!doctype html>
 <html lang="en">
+
 <head>
-    <meta charset="utf-8"/>
-    <meta http-equiv="X-UA-Compatible" content="IE=edge"/>
-    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-    <meta name="theme-color" content="#f1f7fe"/>
-    <meta name="apple-mobile-web-app-capable" content="yes"/>
-    <meta name="mobile-web-app-capable" content="yes"/>
-    <meta name="apple-mobile-web-app-status-bar-style" content="black"/>
-    <title>loading...</title>
+  <meta charset="utf-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="theme-color" content="#f1f7fe" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black" />
+  <title>loading...</title>
 
-    <link rel="icon" type="image/png" href="unicorn.png"/>
-    <link rel="apple-touch-icon" href="unicorn.png"/>
-    <link rel="shortcut icon" type="image/x-icon" href="unicorn.png"/>
-    <link rel="stylesheet" type="text/css" href="vditor/dist/index.css"/>
+  <link rel="icon" type="image/png" href="unicorn.png" />
+  <link rel="apple-touch-icon" href="unicorn.png" />
+  <link rel="shortcut icon" type="image/x-icon" href="unicorn.png" />
+  <link rel="stylesheet" type="text/css" href="vditor/dist/index.css" />
 
-    <script src="vditor/dist/method.js"></script>
-    <script src="vditor/dist/js/i18n/zh_CN.js"></script>
-    <!-- crypto -->
-    <script src="https://lf6-cdn-tos.bytecdntp.com/cdn/expire-1-M/crypto-js/4.1.1/crypto-js.min.js"></script>
+  <script src="vditor/dist/method.js"></script>
+  <script src="vditor/dist/js/i18n/zh_CN.js"></script>
+  <!-- crypto -->
+  <script src="https://lf6-cdn-tos.bytecdntp.com/cdn/expire-1-M/crypto-js/4.1.1/crypto-js.min.js"></script>
 
-    <script src="index.js"></script>
+  <script src="index.js"></script>
 </head>
 <style>
-    .markdown-body {
-        box-sizing: border-box;
-        min-width: 200px;
-        max-width: 980px;
-        margin: 0 auto;
-        padding: 10px 30px 100px;
-    }
+  .markdown-body {
+    box-sizing: border-box;
+    min-width: 200px;
+    max-width: 980px;
+    margin: 0 auto;
+    padding: 10px 30px 100px;
+  }
 
-    @media (max-width: 767px) {
-        .markdown-body {
-            padding: 0 10px 50px;
-        }
+  @media (max-width: 767px) {
+    .markdown-body {
+      padding: 0 10px 50px;
     }
+  }
 </style>
 
 <body>
-    <div id="content" class="markdown-body"></div>
+  <div id="content" class="markdown-body"></div>
 </body>
 <script>
-    const urlParams = new URLSearchParams(window.location.search);
-    var src = urlParams.get("src");
-    var is_pdf = urlParams.get("pdf");
-    var password = urlParams.get("key");
+  const urlParams = new URLSearchParams(window.location.search);
+  var src = urlParams.get("src");
+  var is_pdf = urlParams.get("pdf");
+  var password = urlParams.get("key");
 
-    if(!is_pdf) {
-        add_container();
-    }
+  if (!is_pdf) {
+    add_container();
+  }
 
-    Promise.all([
-        showContent('# try parsing...'),
-        fetch(src)
-            .then(response => response.arrayBuffer())
-            .then(buffer => decryptData(new Uint8Array(buffer), password))
-            .catch(err => {
-                console.log(err);
-                return "# failed to parse!"
-            })
-    ]).then(ret => showContent(ret[1]))
-    
+Promise.all([
+  showContent('# try parsing...'),
+  fetch(src)
+    .then(response => response.arrayBuffer())
+    .then(buffer => decryptData(new Uint8Array(buffer), password))
+    .catch(err => {
+      console.log(err);
+      return "# failed to parse!"
+    })
+]).then(ret => showContent(ret[1]))
+  .then(() => {
+    Array.from(document.getElementsByTagName('img'))
+      .forEach(dom => dom.onclick = () => Vditor.previewImage(dom));
+  })
 </script>
 </html>
