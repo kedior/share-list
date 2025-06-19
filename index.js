@@ -76,3 +76,50 @@ function add_container() {
 
   document.head.appendChild(style);
 }
+
+function enableImagePreview(imgElement) {
+  if (!imgElement || !(imgElement instanceof HTMLImageElement)) {
+    return;
+  }
+
+  // 创建 modal（只创建一次）
+  if (!document.getElementById('custom-image-preview-modal')) {
+    const modal = document.createElement('div');
+    modal.id = 'custom-image-preview-modal';
+    modal.style.cssText = `
+      display: none;
+      position: fixed;
+      top: 0; left: 0;
+      width: 100vw; height: 100vh;
+      background: rgba(0,0,0,0.8);
+      justify-content: center;
+      align-items: center;
+      z-index: 9999;
+    `;
+
+    const modalImg = document.createElement('img');
+    modalImg.style.cssText = `
+      max-width: 90vw;
+      max-height: 90vh;
+      box-shadow: 0 0 10px black;
+    `;
+
+    modal.appendChild(modalImg);
+    document.body.appendChild(modal);
+
+    modal.addEventListener('click', () => {
+      modal.style.display = 'none';
+    });
+  }
+
+  const modal = document.getElementById('custom-image-preview-modal');
+  const modalImg = modal.querySelector('img');
+
+  // 添加点击事件
+  imgElement.style.cursor = 'zoom-in';
+  imgElement.addEventListener('click', () => {
+    modalImg.src = imgElement.src;
+    modal.style.display = 'flex';
+  });
+}
+

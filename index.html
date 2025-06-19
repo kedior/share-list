@@ -52,19 +52,20 @@
     add_container();
   }
 
-Promise.all([
-  showContent('# try parsing...'),
-  fetch(src)
-    .then(response => response.arrayBuffer())
-    .then(buffer => decryptData(new Uint8Array(buffer), password))
-    .catch(err => {
-      console.log(err);
-      return "# failed to parse!"
+  Promise.all([
+    showContent('# try parsing...'),
+    fetch(src)
+      .then(response => response.arrayBuffer())
+      .then(buffer => decryptData(new Uint8Array(buffer), password))
+      .catch(err => {
+        console.log(err);
+        return "# failed to parse!"
+      })
+  ]).then(ret => showContent(ret[1]))
+    .then(() => {
+      Array.from(document.getElementsByTagName('img'))
+        .forEach(dom => enableImagePreview(dom));
     })
-]).then(ret => showContent(ret[1]))
-  .then(() => {
-    Array.from(document.getElementsByTagName('img'))
-      .forEach(dom => dom.onclick = () => Vditor.previewImage(dom));
-  })
 </script>
+
 </html>
