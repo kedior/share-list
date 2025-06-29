@@ -44,22 +44,26 @@
 </body>
 <script>
   const urlParams = new URLSearchParams(window.location.search);
-  var src = urlParams.get("src");
-  var is_pdf = urlParams.get("pdf");
-  var password = urlParams.get("key");
+  const hashParams = new URLSearchParams(window.location.hash.slice(1));
+
+  const src = urlParams.get("src");
+  const isPdf = urlParams.get("pdf");
+  const paramKey = urlParams.get("key");
+  const hashKey = hashParams.get("key");
+  const password = hashKey || paramKey;
 
   if (!is_pdf) {
     add_container();
   }
 
   Promise.all([
-    showContent('# try parsing...'),
+    showContent('# loading...'),
     fetch(src)
       .then(response => response.arrayBuffer())
       .then(buffer => decryptData(new Uint8Array(buffer), password))
       .catch(err => {
         console.log(err);
-        return "# failed to parse!"
+        return "# unable to access!"
       })
   ]).then(ret => showContent(ret[1]))
     .then(() => {

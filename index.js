@@ -64,11 +64,11 @@ function add_container() {
   const style = document.createElement("style");
   style.type = "text/css";
   style.innerHTML = `
-        body {
-            background-color: rgba(227, 249, 253, 0.2);
-        }
-
         @media (min-width: 767px) {
+          body {
+              background-color: rgba(227, 249, 253, 0.2);
+          }
+
           .markdown-body {
               box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.2);
               border: 1px solid #d3d3d3;
