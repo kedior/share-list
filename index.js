@@ -121,10 +121,8 @@ function enableImagePreview(imgElement) {
 
     // 关闭逻辑
     modal.addEventListener('click', (e) => {
-      if (e.target === modal || e.target === modalImgWrapper) {
-        modal.style.display = 'none';
-        document.body.style.overflow = '';
-      }
+      modal.style.display = 'none';
+      document.body.style.overflow = '';
     });
   }
 
