@@ -80,11 +80,8 @@ function add_container() {
 }
 
 function enableImagePreview(imgElement) {
-  if (!imgElement || !(imgElement instanceof HTMLImageElement)) {
-    return;
-  }
+  if (!imgElement || !(imgElement instanceof HTMLImageElement)) return;
 
-  // 创建 modal（只创建一次）
   if (!document.getElementById('custom-image-preview-modal')) {
     const modal = document.createElement('div');
     modal.id = 'custom-image-preview-modal';
@@ -94,53 +91,51 @@ function enableImagePreview(imgElement) {
       top: 0; left: 0;
       width: 100vw; height: 100vh;
       background: rgba(0,0,0,0.85);
+      z-index: 9999;
+      overflow: auto;
+      -webkit-overflow-scrolling: touch;
+    `;
+
+    const modalImgWrapper = document.createElement('div');
+    modalImgWrapper.style.cssText = `
+      display: flex;
       justify-content: center;
       align-items: center;
-      z-index: 9999;
-      transition: opacity 0.3s ease;
+      min-height: 100vh;
+      padding: 20px;
+      touch-action: auto;
     `;
 
     const modalImg = document.createElement('img');
     modalImg.style.cssText = `
-      max-width: 90vw;
-      max-height: 90vh;
-      box-shadow: 0 0 10px rgba(0,0,0,0.6);
+      max-width: 100%;
+      max-height: 100%;
+      object-fit: contain;
+      touch-action: pinch-zoom;
       border-radius: 8px;
     `;
 
-    modal.appendChild(modalImg);
+    modalImgWrapper.appendChild(modalImg);
+    modal.appendChild(modalImgWrapper);
     document.body.appendChild(modal);
 
-    // 关闭 modal 的操作
-    modal.addEventListener('click', () => {
-      modal.style.display = 'none';
-      document.body.style.overflow = '';
-      document.removeEventListener('touchmove', preventTouchMove, { passive: false });
-      document.removeEventListener('wheel', preventDefault, { passive: false });
+    // 关闭逻辑
+    modal.addEventListener('click', (e) => {
+      if (e.target === modal || e.target === modalImgWrapper) {
+        modal.style.display = 'none';
+        document.body.style.overflow = '';
+      }
     });
-
-    // 阻止默认滚动行为函数
-    function preventTouchMove(e) { e.preventDefault(); }
-    function preventDefault(e) { e.preventDefault(); }
-
-    // 暴露方法到 modal 上（避免全局污染）
-    modal._preventTouchMove = preventTouchMove;
-    modal._preventDefault = preventDefault;
   }
 
   const modal = document.getElementById('custom-image-preview-modal');
   const modalImg = modal.querySelector('img');
 
-  // 添加点击事件
   imgElement.style.cursor = 'zoom-in';
   imgElement.addEventListener('click', () => {
     modalImg.src = imgElement.src;
-    modal.style.display = 'flex';
-    document.body.style.overflow = 'hidden'; // 禁用滚动条
-
-    // 多端适配：阻止滑动/滚轮滚动
-    document.addEventListener('touchmove', modal._preventTouchMove, { passive: false });
-    document.addEventListener('wheel', modal._preventDefault, { passive: false });
+    modal.style.display = 'block';
+    document.body.style.overflow = 'hidden'; // 禁止背景滚动
   });
 }
 
