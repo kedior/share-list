@@ -82,58 +82,36 @@ function add_container() {
 function enableImagePreview(imgElement) {
   if (!imgElement || !(imgElement instanceof HTMLImageElement)) return;
 
-  if (!document.getElementById('custom-image-preview-modal')) {
-    const modal = document.createElement('div');
-    modal.id = 'custom-image-preview-modal';
-    modal.style.cssText = `
-      display: none;
-      position: fixed;
-      top: 0; left: 0;
-      width: 100vw; height: 100vh;
-      background: rgba(0,0,0,0.85);
-      z-index: 9999;
-      overflow: auto;
-      -webkit-overflow-scrolling: touch;
-    `;
-
-    const modalImgWrapper = document.createElement('div');
-    modalImgWrapper.style.cssText = `
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      min-height: 100vh;
-      padding: 20px;
-      touch-action: auto;
-    `;
-
-    const modalImg = document.createElement('img');
-    modalImg.style.cssText = `
-      max-width: 100%;
-      max-height: 100%;
-      object-fit: contain;
-      touch-action: pinch-zoom;
-      border-radius: 8px;
-    `;
-
-    modalImgWrapper.appendChild(modalImg);
-    modal.appendChild(modalImgWrapper);
-    document.body.appendChild(modal);
-
-    // 关闭逻辑
-    modal.addEventListener('click', (e) => {
-      modal.style.display = 'none';
-      document.body.style.overflow = '';
-    });
-  }
-
-  const modal = document.getElementById('custom-image-preview-modal');
-  const modalImg = modal.querySelector('img');
-
   imgElement.style.cursor = 'zoom-in';
+
   imgElement.addEventListener('click', () => {
-    modalImg.src = imgElement.src;
-    modal.style.display = 'block';
-    document.body.style.overflow = 'hidden'; // 禁止背景滚动
+    // 创建一个临时 container
+    const container = document.createElement('div');
+    container.style.display = 'none'; // viewer.js 需要容器存在于 DOM
+
+    const clone = imgElement.cloneNode();
+    container.appendChild(clone);
+    document.body.appendChild(container);
+
+    const viewer = new Viewer(clone, {
+      inline: false,
+      navbar: false,
+      title: false,
+      toolbar: false,
+      tooltip: false,
+      movable: true,
+      zoomable: true,
+      scalable: false,
+      transition: true,
+      fullscreen: false,
+      zIndex: 9999,
+      hidden() {
+        viewer.destroy();
+        container.remove(); // 清理 DOM
+      }
+    });
+
+    viewer.show(); // 显示图片查看器
   });
 }
 
