@@ -65,6 +65,7 @@ function add_container() {
   style.innerHTML = `
         @media (min-width: 767px) {
           body {
+              <!-- background-color: rgb(229, 231, 235); -->
               background-color: rgba(227, 249, 253, 0.2);
           }
 
