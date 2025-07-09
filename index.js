@@ -32,7 +32,9 @@ function decryptData(encryptedData, password) {
 async function showContent(contentStr, static_dir) {
   if (!static_dir) static_dir = '';
   if (contentStr.includes('<!DOCTYPE html>')) {
-    document.body.innerHTML = contentStr;
+    document.open();
+    document.write(contentStr);
+    document.close();
     return;
   }
   await Promise.all([
