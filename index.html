@@ -21,7 +21,8 @@
   <!-- crypto -->
   <script src="https://lf6-cdn-tos.bytecdntp.com/cdn/expire-1-M/crypto-js/4.1.1/crypto-js.min.js"></script>
   <!-- viewer -->
-  <link rel="stylesheet" type="text/css" href="https://lf9-cdn-tos.bytecdntp.com/cdn/expire-1-M/viewerjs/1.10.4/viewer.min.css" />
+  <link rel="stylesheet" type="text/css"
+    href="https://lf9-cdn-tos.bytecdntp.com/cdn/expire-1-M/viewerjs/1.10.4/viewer.min.css" />
   <script src="https://lf3-cdn-tos.bytecdntp.com/cdn/expire-1-M/viewerjs/1.10.4/viewer.min.js"></script>
 
   <script src="index.js"></script>
@@ -46,33 +47,39 @@
   <div id="content" class="markdown-body"></div>
 </body>
 <script>
-  const urlParams = new URLSearchParams(window.location.search);
-  const hashParams = new URLSearchParams(window.location.hash.slice(1));
+  function updatePage() {
+    const src = urlKeySearch('src')
+    const password = urlKeySearch('key')
+    const is_pdf = urlKeySearch('pdf')
+    set_pdf_container(is_pdf)
 
-  const src = urlParams.get("src");
-  const isPdf = urlParams.get("pdf");
-  const paramKey = urlParams.get("key");
-  const hashKey = hashParams.get("key");
-  const password = hashKey || paramKey;
-
-  if (!isPdf) {
-    add_container();
+    Promise.all([
+      showContent('# loading...'),
+      fetch(src)
+        .then(response => response.arrayBuffer())
+        .then(buffer => decryptData(new Uint8Array(buffer), password))
+        .catch(err => {
+          console.log(err);
+          return "# unable to access!"
+        })
+    ]).then(ret => showContent(ret[1]))
+      .then(() => {
+        Array.from(document.getElementsByTagName('img'))
+          .forEach(dom => enableImagePreview(dom));
+      })
   }
 
-  Promise.all([
-    showContent('# loading...'),
-    fetch(src)
-      .then(response => response.arrayBuffer())
-      .then(buffer => decryptData(new Uint8Array(buffer), password))
-      .catch(err => {
-        console.log(err);
-        return "# unable to access!"
-      })
-  ]).then(ret => showContent(ret[1]))
-    .then(() => {
-      Array.from(document.getElementsByTagName('img'))
-        .forEach(dom => enableImagePreview(dom));
-    })
+  const src = urlKeySearch('src')
+  const password = urlKeySearch('key')
+  const is_pdf = urlKeySearch('pdf')
+  history.replaceState(null, '', location.pathname);
+  window.addEventListener('hashchange', updatePage);
+
+  fmt = new URLSearchParams();
+  if (is_pdf) fmt.set('pdf', is_pdf);
+  fmt.set('src', src);
+  fmt.set('key', password);
+  location.hash = "#" + fmt.toString();
 </script>
 
 </html>

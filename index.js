@@ -60,24 +60,31 @@ async function showContent(contentStr, static_dir) {
   ]);
 }
 
-function add_container() {
-  const style = document.createElement("style");
-  style.innerHTML = `
-        @media (min-width: 767px) {
-          body {
-              background-color: rgb(229, 231, 235);
-              <!-- background-color: rgba(227, 249, 253, 0.2); -->
-          }
-
-          .markdown-body {
-              box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.2);
-              border: 1px solid #d3d3d3;
-              border-radius: 4px;
-          }
+function set_pdf_container(is_pdf) {
+  var style = document.getElementById("container_id");
+  if (!style) {
+    style = document.createElement("style");
+    style.id = "container_id"
+    document.head.appendChild(style);
+  }
+  if (is_pdf) {
+    style.innerHTML = "";
+  } else {
+    style.innerHTML = `
+      @media (min-width: 767px) {
+        body {
+            background-color: rgb(229, 231, 235);
+            <!-- background-color: rgba(227, 249, 253, 0.2); -->
         }
-        `;
 
-  document.head.appendChild(style);
+        .markdown-body {
+            box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.2);
+            border: 1px solid #d3d3d3;
+            border-radius: 4px;
+        }
+      }
+      `;
+  }
 }
 
 function enableImagePreview(imgElement) {
@@ -114,5 +121,14 @@ function enableImagePreview(imgElement) {
 
     viewer.show(); // 显示图片查看器
   });
+}
+
+function urlKeySearch(key) {
+  const urlParams = new URLSearchParams(window.location.search);
+  const hashParams = new URLSearchParams(window.location.hash.slice(1));
+
+  const paramKey = urlParams.get(key);
+  const hashKey = hashParams.get(key);
+  return hashKey || paramKey || "";
 }
 
