@@ -163,19 +163,9 @@
     }
 
 
-    const urlParams = new URLSearchParams(window.location.search);
-    const hashParams = new URLSearchParams(window.location.hash.slice(1));
-
-    const src = urlParams.get("src");
-
-    const paramFilename = urlParams.get("filename");
-    const paramKey = urlParams.get("key");
-
-    const hashKey = hashParams.get("key");
-    const hashFilename = hashParams.get("filename");
-
-    const password = hashKey || paramKey;
-    const filename = hashFilename || paramFilename;
+    const src = urlKeySearch('src')
+    const password = urlKeySearch('key')
+    const filename = urlKeySearch('filename')
 
     filenameElement.innerText = filename;
     downloadButton.addEventListener('click', async () => {
