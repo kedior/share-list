@@ -32,8 +32,22 @@ function decryptData(encryptedData, password) {
 async function showContent(contentStr, static_dir) {
   if (!static_dir) static_dir = '';
   if (contentStr.includes('<!DOCTYPE html>')) {
+    const refreshScript = `
+
+      <script>
+        window.addEventListener('DOMContentLoaded', function() {
+          var lastHash = location.hash;
+          window.addEventListener('hashchange', function() {
+            if (location.hash !== lastHash) {
+              location.reload();
+            }
+          });
+        });
+</script>
+
+    `
     document.open();
-    document.write(contentStr);
+    document.write(contentStr + refreshScript);
     document.close();
     return;
   }
