@@ -88,18 +88,18 @@
   }
 
   (() => {
+    window.addEventListener('hashchange', updatePage);
+
     const src = urlKeySearch('src')
     const password = urlKeySearch('key')
     const is_pdf = urlKeySearch('pdf')
-    history.replaceState(null, '', location.pathname);
-    window.addEventListener('hashchange', updatePage);
 
     fmt = new URLSearchParams();
     if (is_pdf) fmt.set('pdf', is_pdf);
     fmt.set('src', src);
     fmt.set('key', password);
-    location.hash = "#" + fmt.toString();
-
+    history.replaceState(null, '', location.pathname + "#" + fmt.toString());
+    updatePage();
   })();
 </script>
 

@@ -39,11 +39,7 @@ async function showContent(contentStr, static_dir) {
         var lastHash = location.hash;
         window.addEventListener('hashchange', async function () {
           if (location.hash !== lastHash) {
-            const response = await fetch(location.href);
-            const htmlText = await response.text();
-            document.open();
-            document.write(htmlText);
-            document.close();
+            location.reload();
           }
         });
       });
