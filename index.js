@@ -33,13 +33,14 @@ async function showContent(contentStr, static_dir) {
   if (!static_dir) static_dir = '';
   if (contentStr.includes('<!DOCTYPE html>')) {
     const refreshScript = `
-
       <script>
         window.addEventListener('DOMContentLoaded', function() {
           var lastHash = location.hash;
           window.addEventListener('hashchange', function() {
             if (location.hash !== lastHash) {
-              location.reload();
+              // 用 replace 避免 Firefox 中产生多余历史记录
+              location.replace(location.href);
+              // location.reload();
             }
           });
         });
