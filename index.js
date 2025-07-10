@@ -32,26 +32,37 @@ function decryptData(encryptedData, password) {
 async function showContent(contentStr, static_dir) {
   if (!static_dir) static_dir = '';
   if (contentStr.includes('<!DOCTYPE html>')) {
+    // 注入 hash 监听脚本到 </head> 之前
     const refreshScript = `
       <script>
-        window.addEventListener('DOMContentLoaded', function() {
-          var lastHash = location.hash;
-          window.addEventListener('hashchange', function() {
-            if (location.hash !== lastHash) {
-              // 用 replace 避免 Firefox 中产生多余历史记录
-              location.replace(location.href);
-              // location.reload();
-            }
-          });
+      window.addEventListener('DOMContentLoaded', function () {
+        var lastHash = location.hash;
+        window.addEventListener('hashchange', async function () {
+          if (location.hash !== lastHash) {
+            const response = await fetch(location.href);
+            const htmlText = await response.text();
+            document.open();
+            document.write(htmlText);
+            document.close();
+          }
         });
-</script>
+      });
+      </script>
+    `;
 
-    `
+    // 尝试插入到 </head> 前，或者结尾
+    if (contentStr.includes('</head>')) {
+      contentStr = contentStr.replace('</head>', refreshScript + '\n</head>');
+    } else {
+      contentStr += refreshScript;
+    }
+
     document.open();
-    document.write(contentStr + refreshScript);
+    document.write(contentStr);
     document.close();
     return;
   }
+
   await Promise.all([
     (async (title) => {
       title = title.substring(title.search('#'));

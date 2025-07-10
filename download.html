@@ -21,8 +21,8 @@
       justify-content: center;
       height: 100vh;
       background-color: #f5f5f7;
-      <!-- background-image: url('https://bing.img.run/uhd.php'); -->
-      background-repeat: no-repeat;
+      < !-- background-image: url('https://bing.img.run/uhd.php');
+      -->background-repeat: no-repeat;
       background-size: cover;
       background-position: center;
       background-attachment: fixed;
@@ -109,88 +109,90 @@
   <script src="index.js"></script>
   <script src="https://lf6-cdn-tos.bytecdntp.com/cdn/expire-1-M/crypto-js/4.1.1/crypto-js.min.js"></script>
   <script>
-    const progressBar = document.getElementById('progressBar');
-    const downloadButton = document.getElementById('downloadButton');
-    const note = document.getElementById('note');
-    const filenameElement = document.getElementById('filename');
-    const chunkSize = 1024 * 128;
+    (() => {
+      const progressBar = document.getElementById('progressBar');
+      const downloadButton = document.getElementById('downloadButton');
+      const note = document.getElementById('note');
+      const filenameElement = document.getElementById('filename');
+      const chunkSize = 1024 * 128;
 
-    async function downloadFile(url) {
-      const response = await fetch(url, {method: 'HEAD'});
-      const totalSize = parseInt(response.headers.get('Content-Length'), 10);
-      if (!totalSize) {
-        throw new Error("Failed to fetch file size.")
-      }
-      let downloaded = 0;
-      const chunks = [];
-      for (let start = 0; start < totalSize; start += chunkSize) {
-        const end = Math.min(start + chunkSize - 1, totalSize - 1);
-        const chunkResponse = await fetch(url, {
-          headers: {
-            Range: `bytes=${start}-${end}`
-          }
-        });
-        const chunk = await chunkResponse.arrayBuffer();
-        chunks.push(chunk);
-        downloaded += chunk.byteLength;
-
-        const progress = (downloaded / totalSize) * 100;
-        progressBar.style.width = `${progress.toFixed(2)}%`;
-        note.textContent = `Downloading... ${progress.toFixed(2)}%`;
-      }
-      return await new Blob(chunks).arrayBuffer()
-    }
-
-    async function downloadTrigger(jsonData) {
-      // 检查必要字段
-      if (!jsonData.filename || !jsonData.mimetype || !jsonData.data) {
-        throw new Error("JSON 数据缺少必要的字段！");
-      }
-      const {filename, mimetype, data: base64Data} = jsonData;
-      const binaryData = atob(base64Data);
-      const binaryArray = new Uint8Array(binaryData.length);
-      for (let i = 0; i < binaryData.length; i++) {
-        binaryArray[i] = binaryData.charCodeAt(i);
-      }
-      const blob = new Blob([binaryArray], {type: mimetype});
-      const link = document.createElement("a");
-      link.href = URL.createObjectURL(blob);
-      link.download = filename;
-      document.body.appendChild(link);
-      link.click();
-      document.body.removeChild(link);
-      return true;
-    }
-
-
-    const src = urlKeySearch('src')
-    const password = urlKeySearch('key')
-    const filename = urlKeySearch('filename')
-
-    filenameElement.innerText = filename;
-    downloadButton.addEventListener('click', async () => {
-      downloadButton.disabled = true;
-      try {
-        note.textContent = "Downloading...";
-        const arr = await downloadFile(src)
-
-        note.textContent = "Parsing...";
-        const jsonStr = decryptData(arr, password)
-        const jsonData = JSON.parse(jsonStr);
-        await downloadTrigger(jsonData);
-        note.innerText = "Completed!"
-      } catch (err) {
-        if (err.message === "Malformed UTF-8 data") {
-          note.textContent = "invalid key!";
-        } else {
-          note.textContent = "failed to download!"
+      async function downloadFile(url) {
+        const response = await fetch(url, {method: 'HEAD'});
+        const totalSize = parseInt(response.headers.get('Content-Length'), 10);
+        if (!totalSize) {
+          throw new Error("Failed to fetch file size.")
         }
-        progressBar.style.width = "0%";
-        console.log(err)
-      } finally {
-        downloadButton.disabled = false;
+        let downloaded = 0;
+        const chunks = [];
+        for (let start = 0; start < totalSize; start += chunkSize) {
+          const end = Math.min(start + chunkSize - 1, totalSize - 1);
+          const chunkResponse = await fetch(url, {
+            headers: {
+              Range: `bytes=${start}-${end}`
+            }
+          });
+          const chunk = await chunkResponse.arrayBuffer();
+          chunks.push(chunk);
+          downloaded += chunk.byteLength;
+
+          const progress = (downloaded / totalSize) * 100;
+          progressBar.style.width = `${progress.toFixed(2)}%`;
+          note.textContent = `Downloading... ${progress.toFixed(2)}%`;
+        }
+        return await new Blob(chunks).arrayBuffer()
       }
-    });
+
+      async function downloadTrigger(jsonData) {
+        // 检查必要字段
+        if (!jsonData.filename || !jsonData.mimetype || !jsonData.data) {
+          throw new Error("JSON 数据缺少必要的字段！");
+        }
+        const {filename, mimetype, data: base64Data} = jsonData;
+        const binaryData = atob(base64Data);
+        const binaryArray = new Uint8Array(binaryData.length);
+        for (let i = 0; i < binaryData.length; i++) {
+          binaryArray[i] = binaryData.charCodeAt(i);
+        }
+        const blob = new Blob([binaryArray], {type: mimetype});
+        const link = document.createElement("a");
+        link.href = URL.createObjectURL(blob);
+        link.download = filename;
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        return true;
+      }
+
+      const src = urlKeySearch('src')
+      const password = urlKeySearch('key')
+      const filename = urlKeySearch('filename')
+
+      filenameElement.innerText = filename;
+      downloadButton.addEventListener('click', async () => {
+        downloadButton.disabled = true;
+        try {
+          note.textContent = "Downloading...";
+          const arr = await downloadFile(src)
+
+          note.textContent = "Parsing...";
+          const jsonStr = decryptData(arr, password)
+          const jsonData = JSON.parse(jsonStr);
+          await downloadTrigger(jsonData);
+          note.innerText = "Completed!"
+        } catch (err) {
+          if (err.message === "Malformed UTF-8 data") {
+            note.textContent = "invalid key!";
+          } else {
+            note.textContent = "failed to download!"
+          }
+          progressBar.style.width = "0%";
+          console.log(err)
+        } finally {
+          downloadButton.disabled = false;
+        }
+      });
+
+    })();
   </script>
 </body>
 
