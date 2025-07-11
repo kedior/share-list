@@ -14,18 +14,7 @@
   <link rel="icon" type="image/png" href="unicorn.png" />
   <link rel="apple-touch-icon" href="unicorn.png" />
   <link rel="shortcut icon" type="image/x-icon" href="unicorn.png" />
-  <link rel="stylesheet" type="text/css" href="vditor/dist/index.css" />
-
-  <script src="vditor/dist/method.js"></script>
-  <script src="vditor/dist/js/i18n/zh_CN.js"></script>
-  <!-- crypto -->
-  <script src="https://lf6-cdn-tos.bytecdntp.com/cdn/expire-1-M/crypto-js/4.1.1/crypto-js.min.js"></script>
-  <!-- viewer -->
-  <link rel="stylesheet" type="text/css"
-    href="https://lf9-cdn-tos.bytecdntp.com/cdn/expire-1-M/viewerjs/1.10.4/viewer.min.css" />
-  <script src="https://lf3-cdn-tos.bytecdntp.com/cdn/expire-1-M/viewerjs/1.10.4/viewer.min.js"></script>
-
-  <script src="index.js"></script>
+  <link rel="stylesheet" type="text/css" href="./dist/index.css" />
 </head>
 <style>
   .markdown-body {
@@ -46,61 +35,6 @@
 <body>
   <div id="content" class="markdown-body"></div>
 </body>
-<script>
-  function updatePage() {
-    const src = urlKeySearch('src')
-    const password = urlKeySearch('key')
-    const is_pdf = urlKeySearch('pdf')
-    set_pdf_container(is_pdf)
-
-    Promise.all([
-      showContent('# loading...'),
-      fetch(src)
-        .then(response => response.arrayBuffer())
-        .then(buffer => decryptData(new Uint8Array(buffer), password))
-        .catch(err => {
-          console.log(err);
-          return `
-            <!DOCTYPE html>
-            <html lang="en">
-
-            <head>
-              <meta charset="UTF-8" />
-              <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-              <title>Page Not Found</title>
-            </head>
-
-            <body>
-              <div style="text-align: center;">
-                <h1>Oops! This page galloped away on a unicorn.</h1>
-                <img src="./unicorn.png" alt="Lost Unicorn" style="max-width: 300px; margin: 40px auto; display: block;" />
-              </div>
-            </body>
-
-            </html>
-          `
-        })
-    ]).then(ret => showContent(ret[1]))
-      .then(() => {
-        Array.from(document.getElementsByTagName('img'))
-          .forEach(dom => enableImagePreview(dom));
-      })
-  }
-
-  (() => {
-    window.addEventListener('hashchange', updatePage);
-
-    const src = urlKeySearch('src')
-    const password = urlKeySearch('key')
-    const is_pdf = urlKeySearch('pdf')
-
-    fmt = new URLSearchParams();
-    if (is_pdf) fmt.set('pdf', is_pdf);
-    fmt.set('src', src);
-    fmt.set('key', password);
-    history.replaceState(null, '', location.pathname + "#" + fmt.toString());
-    updatePage();
-  })();
-</script>
+<script src="./dist/index.js" type="module"></script>
 
 </html>
