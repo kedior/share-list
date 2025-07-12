@@ -1,30 +1,28 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="mobile-web-app-capable" content="yes" />
+    <link rel="icon" type="image/png" href="unicorn.png" />
+    <link rel="apple-touch-icon" href="unicorn.png" />
+    <link rel="shortcut icon" type="image/x-icon" href="unicorn.png" />
+    <link rel="stylesheet" type="text/css" href="./dist/download.css" />
+    <title>File Download</title>
+  </head>
 
-<head>
-  <meta charset="utf-8" />
-  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <meta name="apple-mobile-web-app-capable" content="yes" />
-  <meta name="mobile-web-app-capable" content="yes" />
-  <link rel="icon" type="image/png" href="unicorn.png" />
-  <link rel="apple-touch-icon" href="unicorn.png" />
-  <link rel="shortcut icon" type="image/x-icon" href="unicorn.png" />
-  <link rel="stylesheet" type="text/css" href="./dist/download.css" />
-  <title>File Download</title>
-</head>
-
-<body>
-  <div class="container">
-    <div class="title">Download File</div>
-    <div class="filename" id="filename">Loading...</div>
-    <button id="downloadButton" class="download-button">Download</button>
-    <div class="progress-bar">
-      <div class="progress-bar-inner" id="progressBar"></div>
+  <body>
+    <div class="container">
+      <div class="title">Download File</div>
+      <div class="filename" id="filename">Loading...</div>
+      <button id="downloadButton" class="download-button">Download</button>
+      <div class="progress-bar">
+        <div class="progress-bar-inner" id="progressBar"></div>
+      </div>
+      <div class="note" id="note"></div>
     </div>
-    <div class="note" id="note"></div>
-  </div>
-  <script src="./dist/download.js" type="module"></script>
-</body>
-
+    <script src="./dist/download.js" type="module"></script>
+  </body>
 </html>
