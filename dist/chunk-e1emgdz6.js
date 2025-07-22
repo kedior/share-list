@@ -1,1 +1,0 @@
-import{a as c}from"./chunk-fkv8fj7h.js";import{b as n,c as a}from"./chunk-kba8a70a.js";import{h as e,i as o,k as w,m as f,n as t}from"./chunk-qy1yj4rz.js";import"./chunk-t0yjyz0d.js";w();function l({src:i,_key:s}){let[u,k]=o(!0);return e(()=>{(async()=>{let r=await a(i,s);if(!r){k(!1);return}n(r)})()},[]),!u?t(c,{}):t(f,{})}export{l as default};
