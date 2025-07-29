@@ -1,3 +1,0 @@
-import{q as A}from"./chunk-c4j4bbj4.js";function C(g){let q=`<script>(${(()=>{let w=location.hash;window.addEventListener("hashchange",()=>{if(location.hash!==w)location.reload()})}).toString()})();</script>`;if(g.includes("</head>"))g=g.replace("</head>",q+`
-</head>`);else g+=q;document.open(),document.write(g),document.close()}async function E(g,j){try{let w=await(await fetch(g)).arrayBuffer();return await A(new Uint8Array(w),j)}catch(q){return console.log(q),""}}function F(){let g=new URL(window.location.href),j=new URLSearchParams,q=new URLSearchParams(g.search);for(let[x,z]of q.entries())if(!(x in j))j.set(x,z);let w=new URLSearchParams(g.hash.slice(1));for(let[x,z]of w.entries())j.set(x,z);return j}
-export{C as b,E as c,F as d};
