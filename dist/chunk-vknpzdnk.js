@@ -1,2 +1,0 @@
-import{q as e,r as t}from"./chunk-cn99m18v.js";var o=({children:n})=>{return e("div",{style:{display:"flex",justifyContent:"center"},children:n})},i=()=>{return t("div",{style:{textAlign:"center"},children:[e("h1",{children:"Oops! This page galloped away on a unicorn."}),e("img",{src:"./unicorn.png",alt:"Lost Unicorn",style:{maxWidth:"300px",margin:"40px auto",display:"block"}})]})};
-export{o as b,i as c};
