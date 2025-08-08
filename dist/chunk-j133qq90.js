@@ -1,0 +1,2 @@
+import{u as e,v as n}from"./chunk-dh0jzzfb.js";var o=({children:t})=>{return e("div",{style:{display:"flex",justifyContent:"center"},children:t})},i=({msg:t})=>{return n("div",{style:{textAlign:"center"},children:[e("h1",{children:"Oops! This page galloped away on a unicorn."}),e("img",{src:"./unicorn.png",alt:"Lost Unicorn",style:{maxWidth:"300px",margin:"40px auto",display:"block"}}),e("p",{style:{color:"white"},children:String(t)})]})};
+export{o as a,i as b};
