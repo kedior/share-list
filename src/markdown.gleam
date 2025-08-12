@@ -29,6 +29,8 @@ pub fn register() -> Result(Nil, lustre.Error) {
         use vals <- decode.map(list_decoder)
         case vals {
           [src, key, pdf, content] -> {
+            // history shared link need this
+            utils.try_render_html(content)
             ReceiveQuicContent(Props(src:, key:, pdf:, content:))
           }
           _ -> ReceiveFailed
