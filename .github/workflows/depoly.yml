@@ -31,8 +31,8 @@ jobs:
         run: |
           mkdir -p dist
           cp index.html dist/index.html
-          cp priv/static/* dist/
-          cp -r static dist/
+          cp -r priv/static/* dist/
+          cp -r static/* dist/
       # - name: Update path in index.html to use minified app
       #   run: sed -i 's|priv/static/app.mjs|priv/static/app.min.mjs|' dist/index.html
       - name: Setup Pages
