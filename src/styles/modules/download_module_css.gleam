@@ -1,0 +1,10 @@
+pub const body = "mGzJhG-body"
+pub const container = "mGzJhG-container"
+pub const download_button = "mGzJhG-download-button"
+pub const filename = "mGzJhG-filename"
+pub const note = "mGzJhG-note"
+pub const progress_bar = "mGzJhG-progress-bar"
+pub const progress_bar_inner = "mGzJhG-progress-bar-inner"
+pub const title = "mGzJhG-title"
+
+pub const css = ".mGzJhG-body{color:#333;background-color:#f5f5f7;background-position:50%;background-repeat:no-repeat;background-size:cover;background-attachment:fixed;justify-content:center;align-items:center;height:100vh;margin:0;padding:0;font-family:-apple-system,BlinkMacSystemFont,Segoe UI,Roboto,Helvetica Neue,Arial,sans-serif;display:flex}.mGzJhG-container{text-align:center;background:#fff;border-radius:12px;max-width:600px;padding:20px;box-shadow:0 4px 10px #0000001a}.mGzJhG-title{margin-bottom:20px;font-size:1.5rem}.mGzJhG-filename{color:#555;word-wrap:break-word;margin-bottom:10px;font-size:1.2rem}.mGzJhG-progress-bar{background:#e5e5e7;border-radius:5px;width:100%;height:10px;margin-top:20px;margin-bottom:20px;overflow:hidden}.mGzJhG-progress-bar-inner{background:#007aff;width:0%;height:100%;transition:width .2s}.mGzJhG-download-button{color:#fff;cursor:pointer;background:#007aff;border:none;border-radius:8px;padding:12px 24px;font-size:1rem;transition:background-color .3s}.mGzJhG-download-button:disabled{cursor:not-allowed;background:#8e8e93}.mGzJhG-download-button:hover:not(:disabled){background:#005bb5}.mGzJhG-note{color:#666;min-height:20px;margin-top:10px;font-size:.85rem}"
