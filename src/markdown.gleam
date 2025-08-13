@@ -105,8 +105,8 @@ fn get_lazy_content_effect(props: Props) {
       let _ = {
         let next_src = props.src |> string.replace(".x.png", ".y.png")
         Ok({
-          use date <- utils.await_get_content(next_src, props.key)
-          case date {
+          use data <- utils.await_get_content(next_src, props.key)
+          case data {
             Ok(content) ->
               dispatch(ReceiveLazyContent(Props(..props, content:)))
             Error(_) -> Nil

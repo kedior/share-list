@@ -2,13 +2,11 @@ import ffi/ffi
 import gleam/dict
 import gleam/dynamic/decode
 import gleam/javascript/promise
-import gleam/json
 import gleam/list
 import gleam/result
 import gleam/string
 import gleam/uri
 import plinth/browser/window
-import types.{type PageProps}
 
 pub fn get_url_params() -> dict.Dict(String, String) {
   let parser = fn(res) {
@@ -46,19 +44,6 @@ pub fn param_dict_to_hashed_url(params: dict.Dict(String, String)) {
     |> dict.to_list
     |> uri.query_to_string
   }
-}
-
-pub fn page_props_to_json(d: PageProps, keys: List(String)) -> json.Json {
-  let vals = {
-    use k <- list.map(keys)
-    d |> dict.get(k) |> result.unwrap("")
-  }
-
-  {
-    use k, v <- list.map2(keys, vals)
-    #(k, json.string(v))
-  }
-  |> json.object
 }
 
 pub fn json_decode_by_keys(keys: List(String)) {
