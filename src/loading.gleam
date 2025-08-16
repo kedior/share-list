@@ -1,26 +1,33 @@
-import gleam/list
 import lustre/attribute
 import lustre/element
 import lustre/element/html
 import plinth/browser/document
-import styles/modules/loading_module_css
+import styles/modules/loading_module_css as css
 import types.{type PageProps}
 
 pub fn element() {
   document.set_title("loading")
-  let dots =
-    list.map(list.repeat([0], 3), fn(_) {
-      html.div([attribute.class(loading_module_css.dot)], [])
-    })
 
   element.fragment([
     html.title([], "loading..."),
-    html.style([], loading_module_css.css),
+    html.style([], css.css),
     html.div(
       [
-        attribute.styles([#("display", "flex"), #("justify-content", "center")]),
+        attribute.styles([
+          #("display", "flex"),
+          #("justify-content", "center"),
+          #("margin-top", "30px"),
+        ]),
       ],
-      [html.div([attribute.class(loading_module_css.loader)], dots)],
+      [
+        html.div([attribute.class(css.loadingspinner)], [
+          html.div([attribute.id(css.square1)], []),
+          html.div([attribute.id(css.square2)], []),
+          html.div([attribute.id(css.square3)], []),
+          html.div([attribute.id(css.square4)], []),
+          html.div([attribute.id(css.square5)], []),
+        ]),
+      ],
     ),
   ])
 }
