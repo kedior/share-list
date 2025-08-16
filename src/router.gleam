@@ -27,8 +27,8 @@ pub fn element() -> Element(msg) {
 
 fn router(page_type: String) -> Page(Msg) {
   case page_type {
-    "fallback" -> types.NewPage(fn(_) { fallback.element() }, fn() { Nil })
-    "load" -> types.NewPage(fn(_) { loading.element() }, fn() { Nil })
+    "404" | "fallback" -> fallback.page
+    "load" | "loading" -> loading.page
     _ -> encrypted.page
   }
 }
@@ -65,26 +65,19 @@ type Msg {
   HashChange(props: PageProps)
 }
 
-fn update(model: Model, msg: Msg) -> #(Model, Effect(Msg)) {
+fn update(_model: Model, msg: Msg) -> #(Model, Effect(Msg)) {
   let d =
     msg.props
     |> dict.get("d")
     |> result.unwrap("")
 
   let next_model = Model(page_type: d, props: msg.props)
-  let eff = case router(model.page_type) == router(d) {
-    True -> effect.none()
-    False -> {
-      router(model.page_type).clean()
-      effect.none()
-    }
-  }
 
-  #(next_model, eff)
+  #(next_model, effect.none())
 }
 
 // VIEW ------------------------------------------------------------------------
 
 fn view(model: Model) -> Element(Msg) {
-  router(model.page_type).start(model.props)
+  model.props |> router(model.page_type)
 }

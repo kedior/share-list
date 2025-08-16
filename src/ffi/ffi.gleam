@@ -3,9 +3,6 @@ import gleam/javascript/promise.{type Promise}
 @external(javascript, "./export.mjs", "historyReplaceState")
 pub fn history_replace_state(url: String) -> Nil
 
-@external(javascript, "./export.mjs", "setBodyClassName")
-pub fn set_body_class_name(class_name: String) -> Nil
-
 @external(javascript, "./export.mjs", "decodeDataFromImage")
 pub fn decode_data_from_img(img_url: String) -> Promise(Result(BitArray, Nil))
 
