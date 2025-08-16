@@ -14,7 +14,7 @@ import lustre/effect.{type Effect}
 import lustre/element.{type Element}
 import markdown
 import rawhtml
-import types.{type EncryptedPage, type PageProps, NewPage}
+import types.{type EncryptedPage, type PageProps}
 import utils
 
 const component_name = "encrypted-page"
@@ -60,19 +60,13 @@ fn router(page_type: String) -> EncryptedPage(Msg) {
   }
 }
 
-pub const page = NewPage(start, clean)
-
-fn start(props: PageProps) -> Element(msg) {
+pub fn page(props: PageProps) -> Element(msg) {
   let props_json =
     props
     |> json.dict(function.identity, json.string)
     |> attribute.property("props", _)
 
   element.element(component_name, [props_json], [])
-}
-
-fn clean() {
-  Nil
 }
 
 // MODEL -----------------------------------------------------------------------
@@ -150,7 +144,7 @@ fn view(model: Model) -> Element(Msg) {
     Loading -> loading.element()
     Failed -> fallback.element()
     Success(content) -> {
-      router(model.props.page_type).start(content, model.props.other)
+      router(model.props.page_type)(content, model.props.other)
     }
   }
 }

@@ -17,10 +17,6 @@ export const historyReplaceState = (url) => {
   return history.replaceState(null, "", url);
 };
 
-export const setBodyClassName = (className) => {
-  document.body.className = className;
-};
-
 /**
  * @param {String} imageUrl
  * @returns {Promise<Result<BitArray, undefined>>}}

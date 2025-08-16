@@ -1,5 +1,4 @@
 // IMPORTS ---------------------------------------------------------------------
-import ffi/ffi.{set_body_class_name}
 import gleam/dict
 import gleam/dynamic/decode
 import gleam/json
@@ -13,9 +12,8 @@ import lustre/element.{type Element}
 import lustre/element/html
 import plinth/browser/document
 import styles/hljs_ant_design_css
-import styles/modules/global_module_css.{markdown_body_color}
 import styles/modules/markdown_module_css
-import types.{type PageProps, NewEncryptedPage}
+import types.{type PageProps}
 import utils
 
 const component_name = "markdown-body"
@@ -41,9 +39,7 @@ pub fn register() -> Result(Nil, lustre.Error) {
   lustre.register(comp, component_name)
 }
 
-pub const page = NewEncryptedPage(start, clean)
-
-fn start(content: String, props: PageProps) -> Element(msg) {
+pub fn page(content: String, props: PageProps) -> Element(msg) {
   let extract = fn(key) {
     #(key, props |> dict.get(key) |> result.unwrap("") |> json.string)
   }
@@ -57,11 +53,6 @@ fn start(content: String, props: PageProps) -> Element(msg) {
     |> attribute.property("props", _)
 
   element.element(component_name, [props_json], [])
-}
-
-fn clean() {
-  set_body_class_name("")
-  document.set_title("")
 }
 
 // MODEL -----------------------------------------------------------------------
@@ -84,15 +75,6 @@ type Msg {
   ReceiveQuicContent(props: Props)
   ReceiveLazyContent(props: Props)
   ReceiveFailed
-}
-
-fn background_color_effect(pdf: String) {
-  use _dispatch <- effect.from()
-  case pdf {
-    "" -> markdown_body_color
-    _ -> ""
-  }
-  |> set_body_class_name
 }
 
 const lazy_continue_flag = "<!-- lazy start -->"
@@ -129,7 +111,6 @@ fn update(model: Model, msg: Msg) -> #(Model, Effect(Msg)) {
       Model(props.content, props.pdf),
       effect.batch([
         get_lazy_content_effect(props),
-        background_color_effect(props.pdf),
         set_title_effect(props.content),
       ]),
     )
@@ -162,6 +143,8 @@ fn view(model: Model) -> Element(Msg) {
   element.fragment([
     html.style([], markdown_module_css.css),
     html.style([], hljs_ant_design_css.css),
-    container,
+    html.div([attribute.class(markdown_module_css.container)], [
+      container,
+    ]),
   ])
 }
