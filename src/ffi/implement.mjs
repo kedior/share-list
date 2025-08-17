@@ -70,7 +70,7 @@ export const doRenderRawHTML = (contentStr) => {
   const refreshScript = `<script>(${setupHashReload.toString()})();</script>`;
 
   if (contentStr.includes("</head>")) {
-    contentStr = contentStr.replace("</head>", refreshScript + "\n</head>");
+    contentStr = contentStr.replace("</head>", refreshScript + "</head>");
   } else {
     contentStr += refreshScript;
   }
