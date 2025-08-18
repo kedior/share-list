@@ -125,26 +125,32 @@ fn update(model: Model, msg: Msg) -> #(Model, Effect(Msg)) {
 // VIEW ------------------------------------------------------------------------
 
 fn view(model: Model) -> Element(Msg) {
-  let class_name =
+  let body_class_name =
     markdown_module_css.markdown
     <> " "
     <> case model.pdf {
       "" -> markdown_module_css.no_pdf
       _ -> ""
     }
-  let container =
+
+  let container_class_name = case model.pdf {
+    "" -> markdown_module_css.container
+    _ -> ""
+  }
+
+  let body =
     element.unsafe_raw_html(
       "",
       "div",
-      [attribute.class(class_name)],
+      [attribute.class(body_class_name)],
       model.content,
     )
 
   element.fragment([
     html.style([], markdown_module_css.css),
     html.style([], hljs_ant_design_css.css),
-    html.div([attribute.class(markdown_module_css.container)], [
-      container,
+    html.div([attribute.class(container_class_name)], [
+      body,
     ]),
   ])
 }
