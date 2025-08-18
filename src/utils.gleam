@@ -127,3 +127,10 @@ pub fn try_render_html(content: String) {
     }
   }
 }
+
+pub fn wrap_src(src: String) -> String {
+  case src |> string.ends_with(".x") {
+    True -> src <> ".png"
+    False -> src
+  }
+}

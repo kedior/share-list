@@ -1,4 +1,5 @@
 // IMPORTS ---------------------------------------------------------------------
+import download
 import encrypted
 import fallback
 import ffi/ffi.{history_replace_state}
@@ -16,6 +17,7 @@ const component_name = "hash-router"
 
 pub fn register() -> Result(Nil, lustre.Error) {
   let assert Ok(_) = encrypted.register()
+  let assert Ok(_) = download.register()
 
   let comp = lustre.component(init, update, view, [])
   lustre.register(comp, component_name)
@@ -29,6 +31,7 @@ fn router(page_type: String) -> Page(Msg) {
   case page_type {
     "404" | "fallback" -> fallback.page
     "load" | "loading" -> loading.page
+    "download" -> download.page
     _ -> encrypted.page
   }
 }
