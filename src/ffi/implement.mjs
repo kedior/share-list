@@ -141,3 +141,41 @@ const decryptWithAesGcm = async (key, iv, ciphertext) => {
   );
   return new Uint8Array(decrypted);
 };
+
+/**
+ * @param {String} url
+ * @param {(percent: number) => void} onProgress
+ * @returns {Promise<Uint8Array>}
+ */
+export const doDownloadFile = async (url, onProgress) => {
+  const response = await fetch(url);
+
+  if (!response.ok) {
+    throw new Error(`HTTP error! status: ${response.status}`);
+  }
+
+  const lengthStr = response.headers.get("Content-Length");
+  if (!lengthStr) throw new Error("unable to get file size");
+  const length = parseInt(lengthStr, 10);
+
+  const reader = response.body.getReader();
+  const chunks = [];
+  let loaded = 0;
+
+  while (true) {
+    const { done, value } = await reader.read();
+    if (done) break;
+    chunks.push(value);
+    loaded += value.length;
+    const percent = Math.round((loaded / length) * 100);
+    onProgress(percent);
+  }
+
+  const allChunks = new Uint8Array(loaded);
+  let position = 0;
+  for (const chunk of chunks) {
+    allChunks.set(chunk, position);
+    position += chunk.length;
+  }
+  return allChunks;
+};

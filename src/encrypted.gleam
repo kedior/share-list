@@ -5,7 +5,6 @@ import gleam/dynamic/decode
 import gleam/function
 import gleam/json
 import gleam/result
-import gleam/string
 import loading
 import lustre
 import lustre/attribute
@@ -19,13 +18,6 @@ import utils
 
 const component_name = "encrypted-page"
 
-fn wrap_src(src: String) -> String {
-  case src |> string.ends_with(".x") {
-    True -> src <> ".png"
-    False -> src
-  }
-}
-
 pub fn register() -> Result(Nil, lustre.Error) {
   let assert Ok(_) = markdown.register()
   let comp =
@@ -38,7 +30,7 @@ pub fn register() -> Result(Nil, lustre.Error) {
           let d = props |> dict.get("d") |> result.unwrap("")
 
           // history reasons
-          let next_src = wrap_src(src)
+          let next_src = utils.wrap_src(src)
           let next_props = dict.insert(props, "src", next_src)
 
           Ok(Props(d, next_src, key, next_props))

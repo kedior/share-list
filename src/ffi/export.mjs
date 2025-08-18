@@ -1,4 +1,5 @@
 import {
+  Result,
   Ok,
   Error,
   BitArray,
@@ -11,7 +12,12 @@ import {
   doDecodeDataFromImage,
   doDecryptData,
   doRenderRawHTML,
+  doDownloadFile,
 } from "./implement.mjs";
+
+export const domClick = (dom) => {
+  dom.click();
+};
 
 export const historyReplaceState = (url) => {
   return history.replaceState(null, "", url);
@@ -41,6 +47,21 @@ export const decryptData = async (encryptedData, password) => {
     const uint8array = encryptedData.rawBuffer;
     const data = await doDecryptData(uint8array, password);
     return new Ok(data);
+  } catch (err) {
+    console.log(err);
+    return new Error(undefined);
+  }
+};
+
+/**
+ * @param {String} url
+ * @param {(percent: number) => void} onProgress
+ * @returns {Promise<Result<BitArray, undefined>>}
+ */
+export const downloadFile = async (url, onProgress) => {
+  try {
+    const data = await doDownloadFile(url, onProgress);
+    return new Ok(toBitArray(data));
   } catch (err) {
     console.log(err);
     return new Error(undefined);
