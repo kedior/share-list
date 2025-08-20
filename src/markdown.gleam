@@ -12,7 +12,7 @@ import lustre/element.{type Element}
 import lustre/element/html
 import plinth/browser/document
 import styles/hljs_ant_design_css
-import styles/modules/markdown_module_css
+import styles/modules/markdown_module_css as css
 import types.{type PageProps}
 import utils
 
@@ -22,14 +22,13 @@ pub fn register() -> Result(Nil, lustre.Error) {
   let comp =
     lustre.component(init, update, view, [
       component.on_property_change("props", {
-        let list_decoder =
-          utils.json_decode_by_keys(["src", "key", "pdf", "content"])
+        let list_decoder = utils.json_decode_by_keys(["src", "key", "content"])
         use vals <- decode.map(list_decoder)
         case vals {
-          [src, key, pdf, content] -> {
+          [src, key, content] -> {
             // history shared link need this
             utils.try_render_html(content)
-            ReceiveQuicContent(Props(src:, key:, pdf:, content:))
+            ReceiveQuicContent(Props(src:, key:, content:))
           }
           _ -> ReceiveFailed
         }
@@ -58,17 +57,17 @@ pub fn page(content: String, props: PageProps) -> Element(msg) {
 // MODEL -----------------------------------------------------------------------
 
 type Model {
-  Model(content: String, pdf: String)
+  Model(content: String)
 }
 
 fn init(_) -> #(Model, Effect(Msg)) {
-  #(Model("", ""), effect.none())
+  #(Model(""), effect.none())
 }
 
 // UPDATE ----------------------------------------------------------------------
 
 type Props {
-  Props(src: String, key: String, pdf: String, content: String)
+  Props(src: String, key: String, content: String)
 }
 
 type Msg {
@@ -108,16 +107,13 @@ fn set_title_effect(content: String) {
 fn update(model: Model, msg: Msg) -> #(Model, Effect(Msg)) {
   case msg {
     ReceiveQuicContent(props) -> #(
-      Model(props.content, props.pdf),
+      Model(props.content),
       effect.batch([
         get_lazy_content_effect(props),
         set_title_effect(props.content),
       ]),
     )
-    ReceiveLazyContent(props) -> #(
-      Model(props.content, props.pdf),
-      effect.none(),
-    )
+    ReceiveLazyContent(props) -> #(Model(props.content), effect.none())
     ReceiveFailed -> #(model, effect.none())
   }
 }
@@ -125,31 +121,18 @@ fn update(model: Model, msg: Msg) -> #(Model, Effect(Msg)) {
 // VIEW ------------------------------------------------------------------------
 
 fn view(model: Model) -> Element(Msg) {
-  let body_class_name =
-    markdown_module_css.markdown
-    <> " "
-    <> case model.pdf {
-      "" -> markdown_module_css.no_pdf
-      _ -> ""
-    }
-
-  let container_class_name = case model.pdf {
-    "" -> markdown_module_css.container
-    _ -> ""
-  }
-
   let body =
     element.unsafe_raw_html(
       "",
       "div",
-      [attribute.class(body_class_name)],
+      [attribute.class(css.markdown)],
       model.content,
     )
 
   element.fragment([
-    html.style([], markdown_module_css.css),
+    html.style([], css.css),
     html.style([], hljs_ant_design_css.css),
-    html.div([attribute.class(container_class_name)], [
+    html.div([attribute.class(css.container)], [
       body,
     ]),
   ])
