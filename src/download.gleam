@@ -265,7 +265,7 @@ fn button_view(model: Model) {
         case model.status {
           Idle -> element.fragment([download_svg(), btn_text("Download")])
           Downloading(percent) -> btn_text(int.to_string(percent) <> "%")
-          Complete -> element.fragment([complete_svg(), btn_text("complete!")])
+          Complete -> element.fragment([complete_svg(), btn_text("Complete!")])
           _ -> element.fragment([failed_svg(), btn_text("Failed")])
         }
       },
