@@ -46,7 +46,6 @@ pub fn page(content: String, props: PageProps) -> Element(msg) {
     json.object([
       extract("src"),
       extract("key"),
-      extract("pdf"),
       #("content", json.string(content)),
     ])
     |> attribute.property("props", _)
@@ -80,23 +79,23 @@ const lazy_continue_flag = "<!-- lazy start -->"
 
 fn get_lazy_content_effect(props: Props) {
   use dispatch <- effect.from()
-  case props.content |> string.ends_with(lazy_continue_flag) {
-    False -> Nil
-    True -> {
-      let _ = {
-        let next_src = props.src |> string.replace(".x.png", ".y.png")
-        Ok({
-          use data <- utils.await_get_content(next_src, props.key)
-          case data {
-            Ok(content) ->
-              dispatch(ReceiveLazyContent(Props(..props, content:)))
-            Error(_) -> Nil
-          }
-        })
+  {
+    use _ <- result.try(
+      case props.content |> string.ends_with(lazy_continue_flag) {
+        True -> Ok(Nil)
+        False -> Error(Nil)
+      },
+    )
+    let next_src = props.src |> string.replace(".x.png", ".y.png")
+    utils.await_get_content(next_src, props.key, fn(res) {
+      case res {
+        Ok(content) -> dispatch(ReceiveLazyContent(Props(..props, content:)))
+        Error(_) -> Nil
       }
-      Nil
-    }
+    })
+    Ok(Nil)
   }
+  |> result.unwrap(Nil)
 }
 
 fn set_title_effect(content: String) {
