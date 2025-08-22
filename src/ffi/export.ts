@@ -1,5 +1,5 @@
+import type { String } from "lightningcss";
 import {
-  Result,
   Ok,
   Error,
   BitArray,
@@ -13,36 +13,30 @@ import {
   doDecryptData,
   doRenderRawHTML,
   doDownloadFile,
-} from "./implement.mjs";
+} from "./implement.js";
 
-export const domClick = (dom) => {
+export const domClick = (dom: HTMLElement) => {
   dom.click();
 };
 
-export const historyReplaceState = (url) => {
+export const historyReplaceState = (url: String) => {
   return history.replaceState(null, "", url);
 };
 
-/**
- * @param {String} imageUrl
- * @returns {Promise<Result<BitArray, undefined>>}}
- */
-export const decodeDataFromImage = async (imageUrl) => {
+export const decodeDataFromImage = async (imageUrl: String) => {
   try {
     const data = await doDecodeDataFromImage(imageUrl);
-    return new Ok(toBitArray(data));
+    return new Ok(toBitArray([data]));
   } catch (err) {
     console.log(err);
     return new Error(undefined);
   }
 };
 
-/**
- * @param {BitArray} encryptedData
- * @param {string} password
- * @returns {Promise<Result<string, undefined>>}
- */
-export const decryptData = async (encryptedData, password) => {
+export const decryptData = async (
+  encryptedData: BitArray,
+  password: String,
+) => {
   try {
     const uint8array = encryptedData.rawBuffer;
     const data = await doDecryptData(uint8array, password);
@@ -53,25 +47,19 @@ export const decryptData = async (encryptedData, password) => {
   }
 };
 
-/**
- * @param {String} url
- * @param {(percent: number) => void} onProgress
- * @returns {Promise<Result<BitArray, undefined>>}
- */
-export const downloadFile = async (url, onProgress) => {
+export const downloadFile = async (
+  url: String,
+  onProgress: (percent: number) => void,
+) => {
   try {
     const data = await doDownloadFile(url, onProgress);
-    return new Ok(toBitArray(data));
+    return new Ok(toBitArray([data]));
   } catch (err) {
     console.log(err);
     return new Error(undefined);
   }
 };
 
-/**
- * @param {string} contentStr
- * @returns {undefined}
- */
-export const renderRawHTML = (contentStr) => {
+export const renderRawHTML = (contentStr: String) => {
   doRenderRawHTML(contentStr);
 };
