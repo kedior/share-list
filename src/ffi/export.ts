@@ -9,7 +9,7 @@ import {
 } from "../gleam.mjs";
 
 import {
-  doDecodeDataFromImage,
+  doFetchImgRgba,
   doDecryptData,
   doRenderRawHTML,
   doDownloadFile,
@@ -23,9 +23,9 @@ export const historyReplaceState = (url: String) => {
   return history.replaceState(null, "", url);
 };
 
-export const decodeDataFromImage = async (imageUrl: String) => {
+export const fetchImgRgba = async (imageUrl: String) => {
   try {
-    const data = await doDecodeDataFromImage(imageUrl);
+    const data = await doFetchImgRgba(imageUrl);
     return new Ok(toBitArray([data]));
   } catch (err) {
     console.log(err);

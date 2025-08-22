@@ -6,6 +6,7 @@ import gleam/list
 import gleam/result
 import gleam/string
 import gleam/uri
+import lsb4
 import plinth/browser/window
 
 pub fn get_url_params() -> dict.Dict(String, String) {
@@ -61,20 +62,21 @@ fn do_json_decode_by_keys(reversed_keys: List(String), vals: List(String)) {
   }
 }
 
-fn fetch_content(src: String, key: String) {
-  use bit <- promise.try_await(ffi.decode_data_from_img(src))
-  use content <- promise.try_await(ffi.decrypt_data(bit, key))
-  promise.resolve(Ok(content))
-}
-
 pub fn await_get_content(
   src: String,
   key: String,
   callback: fn(Result(String, Nil)) -> Nil,
 ) {
   {
-    use content <- promise.await(fetch_content(src, key))
-    callback(content)
+    use res <- promise.await({
+      use rgba <- promise.try_await(ffi.fetch_img_rgba(src))
+      use raw_data <- promise.try_await(
+        rgba |> lsb4.parse_rgba_lsb4 |> promise.resolve,
+      )
+      use content <- promise.await(ffi.decrypt_data(raw_data, key))
+      promise.resolve(content)
+    })
+    callback(res)
     promise.resolve(Nil)
   }
   Nil
