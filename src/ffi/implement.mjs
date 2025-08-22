@@ -1,25 +1,15 @@
+import * as upng from "upng";
+
 /**
  * @param {String} imageUrl
  * @returns {Promise<Uint8Array>}}
  */
 export async function doDecodeDataFromImage(imageUrl) {
-  const img = new Image();
-  img.src = imageUrl;
-
-  await img.decode().catch(() => {
-    throw new Error("img decode failed");
-  });
-
-  const canvas = document.createElement("canvas");
-  canvas.width = img.width;
-  canvas.height = img.height;
-  const ctx = canvas.getContext("2d");
-  if (!ctx) throw new Error("unable to fetch canvas context");
-
-  ctx.drawImage(img, 0, 0);
-  const imageData = ctx.getImageData(0, 0, img.width, img.height);
-  const data = imageData.data;
-
+  const response = await fetch(imageUrl);
+  const buffer = await response.arrayBuffer();
+  const img = upng.decode(buffer);
+  const rgbaArrs = upng.toRGBA8(img);
+  const data = rgbaArrs;
   const nibbles = [];
   for (let i = 0; i < data.length; i += 4) {
     nibbles.push(data[i] & 0x0f); // R

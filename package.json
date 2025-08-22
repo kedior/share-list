@@ -1,0 +1,17 @@
+{
+  "name": "app",
+  "type": "module",
+  "private": true,
+  "devDependencies": {
+    "@types/bun": "latest"
+  },
+  "peerDependencies": {
+    "typescript": "^5"
+  },
+  "dependencies": {
+    "upng": "^1.0.1"
+  },
+  "scripts": {
+    "build": "gleam build && bun build ./build/dev/javascript/app/app.mjs --outdir ./out/ --target browser --minify"
+  }
+}

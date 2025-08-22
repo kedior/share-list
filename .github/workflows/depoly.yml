@@ -14,33 +14,46 @@ jobs:
       deployments: write
       pages: write
       id-token: write
+
     steps:
       - name: Checkout repo
         uses: actions/checkout@v4
+
+      - name: Set up Bun
+        uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: latest
+
       - name: Set up Gleam
         uses: erlef/setup-beam@v1
         with:
           otp-version: "latest"
           gleam-version: "latest"
           rebar3-version: "latest"
+
       - name: Install dependencies
-        run: gleam deps download
+        run: |
+          gleam deps download
+          bun install
+
       - name: Build app
-        run: gleam run -m lustre/dev build app --minify
+        run: bun run build
+
       - name: Copy output to dist
         run: |
           mkdir -p dist
           cp index.html dist/index.html
-          cp -r priv/static/* dist/
+          cp -r out/* dist/
           cp -r static/* dist/
-      # - name: Update path in index.html to use minified app
-      #   run: sed -i 's|priv/static/app.mjs|priv/static/app.min.mjs|' dist/index.html
+
       - name: Setup Pages
         uses: actions/configure-pages@v5
+
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
         with:
           path: "dist"
+
       - name: Deploy to GitHub Pages
         id: deployment
         uses: actions/deploy-pages@v4
