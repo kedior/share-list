@@ -3,15 +3,16 @@
   "type": "module",
   "private": true,
   "devDependencies": {
-    "@types/bun": "latest"
+    "@types/bun": "^1.2.20",
+    "@types/upng-js": "^2.1.5"
   },
   "peerDependencies": {
-    "typescript": "^5"
+    "typescript": "^5.9.2"
   },
   "dependencies": {
-    "upng": "^1.0.1"
+    "upng-js": "^2.1.0"
   },
   "scripts": {
-    "build": "gleam build && bun build ./build/dev/javascript/app/app.mjs --outdir ./out/ --target browser --minify"
+    "build": "gleam build && bun run build.ts"
   }
 }

@@ -42,7 +42,6 @@ jobs:
       - name: Copy output to dist
         run: |
           mkdir -p dist
-          cp index.html dist/index.html
           cp -r out/* dist/
           cp -r static/* dist/
 
