@@ -1,12 +1,30 @@
 import upng from "upng-js";
 
-export async function doFetchImgRgba(imageUrl: string) {
+export async function doDecodeDataFromImage(imageUrl: string) {
   const response = await fetch(imageUrl);
   const buffer = await response.arrayBuffer();
   const img = upng.decode(buffer);
   const dataBuffer = upng.toRGBA8(img);
   const data = new Uint8Array(dataBuffer[0]!);
-  return data;
+
+  const nibbles: number[] = [];
+  for (let i = 0; i < data.length; i += 4) {
+    nibbles.push(data[i]! & 0x0f); // R
+    nibbles.push(data[i + 1]! & 0x0f); // G
+    nibbles.push(data[i + 2]! & 0x0f); // B
+  }
+
+  const bytes: number[] = [];
+  for (let i = 0; i + 1 < nibbles.length; i += 2) {
+    bytes.push(nibbles[i]! | (nibbles[i + 1]! << 4));
+  }
+
+  if (bytes.length < 4) throw new Error("数据长度不足");
+  const dataLen =
+    bytes[0]! | (bytes[1]! << 8) | (bytes[2]! << 16) | (bytes[3]! << 24);
+
+  const resultBytes = bytes.slice(4, 4 + dataLen);
+  return new Uint8Array(resultBytes);
 }
 
 export const doDecryptData = async (
@@ -101,7 +119,7 @@ const deriveKeyFromPassword = async (
   const derivedKey = await crypto.subtle.deriveKey(
     {
       name: "PBKDF2",
-      salt: salt as BufferSource,
+      salt: salt,
       iterations: 10000,
       hash: "SHA-256",
     },
@@ -125,10 +143,10 @@ const decryptWithAesGcm = async (
   const decrypted = await crypto.subtle.decrypt(
     {
       name: "AES-GCM",
-      iv: iv as BufferSource,
+      iv: iv,
     },
     key,
-    ciphertext as BufferSource,
+    ciphertext,
   );
   return new Uint8Array(decrypted);
 };
