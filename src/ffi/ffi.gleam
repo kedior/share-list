@@ -7,8 +7,8 @@ pub fn dom_click(dom: Element) -> Nil
 @external(javascript, "./export.ts", "historyReplaceState")
 pub fn history_replace_state(url: String) -> Nil
 
-@external(javascript, "./export.ts", "decodeDataFromImage")
-pub fn decode_data_from_img(img_url: String) -> Promise(Result(BitArray, Nil))
+@external(javascript, "./export.ts", "fetchImgRgba")
+pub fn fetch_img_rgba(img_url: String) -> Promise(Result(BitArray, Nil))
 
 @external(javascript, "./export.ts", "decryptData")
 pub fn decrypt_data(
