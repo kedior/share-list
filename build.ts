@@ -8,8 +8,7 @@ await mkdir(distDir, { recursive: true });
 const entryJsPath = "./out/app.js";
 const entryHtmlPath = "./out/index.html";
 const jsCode = `import { main } from "../build/dev/javascript/app/app.mjs";main();`;
-const htmlCode = `<!doctype html><script type="module" src="./app.js"></script>`;
-
+const htmlCode = `<!doctype html><html lang="en"><script type="module" src="./app.js"></script></html>`;
 await writeFile(entryJsPath, jsCode);
 await writeFile(entryHtmlPath, htmlCode);
 

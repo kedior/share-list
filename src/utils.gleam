@@ -17,11 +17,10 @@ pub fn get_url_params() -> dict.Dict(String, String) {
     }
     |> uri.parse_query
     |> result.unwrap([])
-    |> dict.from_list
   }
 
-  let hash_params = window.get_hash() |> parser
-  let params_list = window.get_search() |> parser |> dict.to_list
+  let hash_params = window.get_hash() |> parser |> dict.from_list
+  let params_list = window.get_search() |> parser
 
   // filter out kv that not in hash_params
   {
@@ -61,20 +60,18 @@ fn do_json_decode_by_keys(reversed_keys: List(String), vals: List(String)) {
   }
 }
 
-fn fetch_content(src: String, key: String) {
-  use bit <- promise.try_await(ffi.decode_data_from_img(src))
-  use content <- promise.try_await(ffi.decrypt_data(bit, key))
-  promise.resolve(Ok(content))
-}
-
 pub fn await_get_content(
   src: String,
   key: String,
   callback: fn(Result(String, Nil)) -> Nil,
 ) {
   {
-    use content <- promise.await(fetch_content(src, key))
-    callback(content)
+    use res <- promise.await({
+      use bits <- promise.try_await(ffi.decode_data_from_img(src))
+      use content <- promise.await(ffi.decrypt_data(bits, key))
+      promise.resolve(content)
+    })
+    callback(res)
     promise.resolve(Nil)
   }
   Nil
@@ -82,32 +79,25 @@ pub fn await_get_content(
 
 pub fn guess_title(content: String) -> String {
   let tags = ["h1", "h2", "h3", "h4", "h5", "h6"]
-  case
-    {
-      use tag <- list.find_map(tags)
-      let open_tag = "<" <> tag <> ">"
-      let close_tag = "</" <> tag <> ">"
-
-      let trimd = string.trim_start(content)
-      case string.starts_with(trimd, open_tag) {
-        False -> Error(Nil)
-        True -> {
-          case
-            open_tag
-            |> string.length
-            |> string.drop_start(trimd, _)
-            |> string.split_once(close_tag)
-          {
-            Ok(#(title, _)) -> Ok(title)
-            Error(Nil) -> Error(Nil)
-          }
-        }
-      }
-    }
   {
-    Ok(title) -> title
-    Error(Nil) -> "Awesome page"
+    use tag <- list.find_map(tags)
+    let open_tag = "<" <> tag <> ">"
+    let close_tag = "</" <> tag <> ">"
+
+    let trimd = string.trim_start(content)
+    use trimd <- result.try(case trimd |> string.starts_with(open_tag) {
+      True -> Ok(trimd)
+      False -> Error(Nil)
+    })
+    use #(title, _) <- result.try({
+      open_tag
+      |> string.length
+      |> string.drop_start(trimd, _)
+      |> string.split_once(close_tag)
+    })
+    Ok(title)
   }
+  |> result.unwrap("Awesome Page")
 }
 
 pub fn try_render_html(content: String) {
