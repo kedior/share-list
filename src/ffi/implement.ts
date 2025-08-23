@@ -83,7 +83,7 @@ export const doDownloadFile = async (
     if (done) break;
     chunks.push(value);
     loaded += value.length;
-    const percent = (loaded / length) * 100;
+    const percent = parseFloat(((loaded / length) * 100).toFixed(1));
     onProgress(percent);
   }
 
@@ -119,7 +119,7 @@ const deriveKeyFromPassword = async (
   const derivedKey = await crypto.subtle.deriveKey(
     {
       name: "PBKDF2",
-      salt: salt,
+      salt: salt as BufferSource,
       iterations: 10000,
       hash: "SHA-256",
     },
@@ -143,10 +143,10 @@ const decryptWithAesGcm = async (
   const decrypted = await crypto.subtle.decrypt(
     {
       name: "AES-GCM",
-      iv: iv,
+      iv: iv as BufferSource,
     },
     key,
-    ciphertext,
+    ciphertext as BufferSource,
   );
   return new Uint8Array(decrypted);
 };
