@@ -12,6 +12,7 @@ import lustre/element.{type Element}
 import lustre/element/html
 import plinth/browser/document
 import styles/hljs_ant_design_css
+import styles/mdparser_css
 import styles/modules/markdown_module_css as css
 import types.{type PageProps}
 import utils
@@ -131,6 +132,7 @@ fn view(model: Model) -> Element(Msg) {
   element.fragment([
     html.style([], css.css),
     html.style([], hljs_ant_design_css.css),
+    html.style([], mdparser_css.css),
     html.div([attribute.class(css.container)], [
       body,
     ]),
