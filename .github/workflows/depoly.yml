@@ -19,28 +19,14 @@ jobs:
       - name: Checkout repo
         uses: actions/checkout@v4
 
-      - name: Set up Bun
-        uses: oven-sh/setup-bun@v2
+      - name: Setup Nix
+        uses: cachix/install-nix-action@v31
         with:
-          bun-version: latest
-
-      - name: Set up Gleam
-        uses: erlef/setup-beam@v1
-        with:
-          otp-version: "latest"
-          gleam-version: "latest"
-          rebar3-version: "latest"
-
-      - name: Install dependencies
-        run: |
-          gleam deps download
-          bun install
+          github_access_token: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Build app
-        run: bun run build
-
-      - name: Copy output to dist
         run: |
+          nix develop -c bun run build
           mkdir -p dist
           cp -r out/* dist/
           cp -r static/* dist/
