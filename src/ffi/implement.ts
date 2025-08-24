@@ -12,6 +12,7 @@ export async function doDecodeDataFromImage(imageUrl: string) {
     nibbles.push(data[i]! & 0x0f); // R
     nibbles.push(data[i + 1]! & 0x0f); // G
     nibbles.push(data[i + 2]! & 0x0f); // B
+    nibbles.push(data[i + 3]! & 0x0f); // A
   }
 
   const bytes: number[] = [];
