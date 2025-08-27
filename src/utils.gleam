@@ -68,8 +68,7 @@ pub fn await_get_content(
   {
     use res <- promise.await({
       use bits <- promise.try_await(ffi.decode_data_from_img(src))
-      use content <- promise.await(ffi.decrypt_data(bits, key))
-      promise.resolve(content)
+      ffi.decrypt_data(bits, key)
     })
     callback(res)
     promise.resolve(Nil)
