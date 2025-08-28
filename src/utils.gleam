@@ -1,11 +1,12 @@
 import ffi/ffi
 import gleam/dict
-import gleam/dynamic/decode
+import gleam/int
 import gleam/javascript/promise
 import gleam/list
 import gleam/result
 import gleam/string
 import gleam/uri
+import lustre
 import plinth/browser/window
 
 pub fn get_url_params() -> dict.Dict(String, String) {
@@ -42,21 +43,6 @@ pub fn param_dict_to_hashed_url(params: dict.Dict(String, String)) {
     params
     |> dict.to_list
     |> uri.query_to_string
-  }
-}
-
-pub fn json_decode_by_keys(keys: List(String)) {
-  keys |> list.reverse |> do_json_decode_by_keys([])
-}
-
-fn do_json_decode_by_keys(reversed_keys: List(String), vals: List(String)) {
-  case reversed_keys {
-    [tail, ..others] -> {
-      use val <- decode.field(tail, decode.string)
-      // prepend
-      do_json_decode_by_keys(others, [val, ..vals])
-    }
-    [] -> decode.success(vals)
   }
 }
 
@@ -121,5 +107,38 @@ pub fn wrap_src(src: String) -> String {
   case src |> string.ends_with(".x") {
     True -> src <> ".png"
     False -> src
+  }
+}
+
+fn random_str(len: Int, from: String) {
+  let from_len = string.length(from)
+  list.range(1, len)
+  |> list.map(fn(_) {
+    int.random(from_len)
+    |> string.drop_start(from, _)
+    |> string.first()
+    |> result.unwrap("")
+  })
+  |> string.join("")
+}
+
+const numbers_strings = "0123456789"
+
+const lower_strings = "abcdefghijklmnopqrstuvwxyz"
+
+const mix_strings = numbers_strings <> lower_strings
+
+fn random_component_name() {
+  random_str(1, lower_strings) <> "-" <> random_str(4, mix_strings)
+}
+
+pub fn register_with_random_name(component: lustre.App(Nil, model, msg)) {
+  let name = random_component_name()
+  case lustre.is_registered(name) {
+    True -> register_with_random_name(component)
+    False -> {
+      let assert Ok(Nil) = lustre.register(component, name)
+      name
+    }
   }
 }

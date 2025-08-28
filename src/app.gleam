@@ -11,12 +11,16 @@ import styles/modules/global_module_css
 // MAIN ------------------------------------------------------------------------
 
 pub fn main() {
-  let assert Ok(_) = router.register()
-  let assert Ok(_) = app() |> lustre.element |> lustre.start("html", Nil)
+  let router_name = router.register()
+  let assert Ok(_) =
+    element.element(router_name, [], [])
+    |> app
+    |> lustre.element
+    |> lustre.start("html", Nil)
   Nil
 }
 
-fn app() {
+fn app(content: element.Element(msg)) {
   element.fragment([
     html.head([], [
       html.meta([attribute.charset("utf-8")]),
@@ -51,7 +55,7 @@ fn app() {
       html.style([], global_module_css.css),
       // fuck katex fonts, must inject to global body
       html.style([], katex_css.css),
-      router.element(),
+      content,
     ]),
   ])
 }

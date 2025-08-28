@@ -13,52 +13,30 @@ import lustre/effect.{type Effect}
 import lustre/element.{type Element}
 import markdown
 import rawhtml
-import types.{type EncryptedPage, type PageProps}
+import types.{type PageProps, type Router, do_route, new_router}
 import utils
 
-const component_name = "encrypted-page"
+pub fn register() {
+  lustre.component(init, update, view, [
+    component.on_property_change("props", {
+      use props <- decode.map(decode.dict(decode.string, decode.string))
+      let try_parse_props = {
+        use src <- result.try(props |> dict.get("src"))
+        use key <- result.try(props |> dict.get("key"))
+        let d = props |> dict.get("d") |> result.unwrap("")
+        // history reasons
+        let next_src = utils.wrap_src(src)
+        let next_props = dict.insert(props, "src", next_src)
 
-pub fn register() -> Result(Nil, lustre.Error) {
-  let assert Ok(_) = markdown.register()
-  let comp =
-    lustre.component(init, update, view, [
-      component.on_property_change("props", {
-        use props <- decode.map(decode.dict(decode.string, decode.string))
-        let try_parse_props = {
-          use src <- result.try(props |> dict.get("src"))
-          use key <- result.try(props |> dict.get("key"))
-          let d = props |> dict.get("d") |> result.unwrap("")
-
-          // history reasons
-          let next_src = utils.wrap_src(src)
-          let next_props = dict.insert(props, "src", next_src)
-
-          Ok(Props(d, next_src, key, next_props))
-        }
-        case try_parse_props {
-          Ok(props) -> MsgPropsChange(props)
-          Error(Nil) -> MsgFailed
-        }
-      }),
-    ])
-
-  lustre.register(comp, component_name)
-}
-
-fn router(page_type: String) -> EncryptedPage(Msg) {
-  case page_type {
-    "html" -> rawhtml.page
-    _ -> markdown.page
-  }
-}
-
-pub fn page(props: PageProps) -> Element(msg) {
-  let props_json =
-    props
-    |> json.dict(function.identity, json.string)
-    |> attribute.property("props", _)
-
-  element.element(component_name, [props_json], [])
+        Ok(Props(d, next_src, key, next_props))
+      }
+      case try_parse_props {
+        Ok(props) -> MsgPropsChange(props)
+        Error(Nil) -> MsgFailed
+      }
+    }),
+  ])
+  |> utils.register_with_random_name
 }
 
 // MODEL -----------------------------------------------------------------------
@@ -77,16 +55,28 @@ fn empty_prop() {
 }
 
 type Model {
-  Model(status: Status, props: Props)
+  Model(status: Status, props: Props, router: Router)
 }
 
 fn init(_) -> #(Model, Effect(Msg)) {
-  #(Model(Loading, empty_prop()), effect.none())
+  let markdown_name = markdown.register()
+  let raw_html_name = rawhtml.register()
+
+  let router =
+    new_router(
+      [
+        #(["md", "markdown"], markdown_name),
+        #(["html"], raw_html_name),
+      ],
+      markdown_name,
+    )
+  #(Model(Loading, empty_prop(), router), effect.none())
 }
 
 // UPDATE ----------------------------------------------------------------------
 
 type Msg {
+  MsgRouterChange(Router)
   MsgPropsChange(Props)
   MsgSuccess(Model)
   MsgFailed
@@ -96,35 +86,42 @@ fn is_source_changed(old_props: Props, new_props: Props) {
   old_props.src != new_props.src || old_props.key != new_props.key
 }
 
-fn do_fetch_content(props: Props, dispatch) {
-  use res <- utils.await_get_content(props.src, props.key)
+fn do_fetch_content(model: Model, dispatch) {
+  use res <- utils.await_get_content(model.props.src, model.props.key)
   case res {
     Ok(content) -> {
-      let next_model = Model(Success(content), props)
+      let next_model = Model(..model, status: Success(content))
       dispatch(MsgSuccess(next_model))
     }
     Error(_) -> dispatch(MsgFailed)
   }
 }
 
-fn props_change_effect(old_model: Model, props: Props) {
+fn props_change_effect(model: Model, props: Props) {
   use dispatch <- effect.from()
-  let old_props = old_model.props
-  let page_changed = router(old_props.page_type) != router(props.page_type)
-  let source_changed = is_source_changed(old_model.props, props)
+  let r = model.router
+  let old_type = model.props.page_type
+  let new_type = props.page_type
+  let page_changed = do_route(r, old_type) != do_route(r, new_type)
+  let source_changed = is_source_changed(model.props, props)
 
+  let next_model = Model(..model, props:)
   case page_changed, source_changed {
-    True, _ | _, True -> do_fetch_content(props, dispatch)
-    False, False -> dispatch(MsgSuccess(Model(..old_model, props:)))
+    True, _ | _, True -> do_fetch_content(next_model, dispatch)
+    False, False -> dispatch(MsgSuccess(next_model))
   }
 }
 
 fn update(model: Model, msg: Msg) -> #(Model, Effect(Msg)) {
   case msg {
+    MsgRouterChange(router) -> #(Model(..model, router:), effect.none())
     MsgPropsChange(props) -> {
-      #(Model(Loading, props), props_change_effect(model, props))
+      #(
+        Model(..model, status: Loading, props:),
+        props_change_effect(model, props),
+      )
     }
-    MsgFailed -> #(Model(Failed, empty_prop()), effect.none())
+    MsgFailed -> #(Model(..model, status: Failed), effect.none())
     MsgSuccess(model) -> #(model, effect.none())
   }
 }
@@ -136,7 +133,17 @@ fn view(model: Model) -> Element(Msg) {
     Loading -> loading.element()
     Failed -> fallback.element()
     Success(content) -> {
-      router(model.props.page_type)(content, model.props.other)
+      let next_props = model.props.other |> dict.insert("content", content)
+      do_route(model.router, model.props.page_type)
+      |> element.element(
+        [
+          attribute.property(
+            "props",
+            json.dict(next_props, function.identity, json.string),
+          ),
+        ],
+        [],
+      )
     }
   }
 }

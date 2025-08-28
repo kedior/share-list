@@ -1,8 +1,9 @@
+import lustre
 import lustre/attribute
 import lustre/element
 import lustre/element/html
 import plinth/browser/document
-import types.{type PageProps}
+import utils
 
 pub fn element() {
   document.set_title("404!")
@@ -24,6 +25,7 @@ pub fn element() {
   ])
 }
 
-pub fn page(_: PageProps) {
-  element()
+pub fn register() {
+  lustre.element(element())
+  |> utils.register_with_random_name
 }

@@ -1,9 +1,36 @@
+import fallback
 import ffi/ffi
-import loading
-import lustre/element.{type Element}
-import types.{type PageProps}
+import gleam/dict
+import gleam/dynamic/decode
+import gleam/result
+import lustre
+import lustre/component
+import lustre/effect
+import utils
 
-pub fn page(content: String, _props: PageProps) -> Element(msg) {
-  ffi.render_raw_html(content)
-  loading.element()
+fn init(_) {
+  #(Nil, effect.none())
+}
+
+fn update(_model, _msg) {
+  #(Nil, effect.none())
+}
+
+fn view(_model) {
+  fallback.element()
+}
+
+pub fn register() {
+  lustre.component(init, update, view, [
+    component.on_property_change("props", {
+      use props <- decode.map(decode.dict(decode.string, decode.string))
+      {
+        use content <- result.try(props |> dict.get("content"))
+        ffi.render_raw_html(content)
+        Ok(Nil)
+      }
+      |> result.unwrap(Nil)
+    }),
+  ])
+  |> utils.register_with_random_name
 }

@@ -1,11 +1,12 @@
 import gleam/list
+import lustre
 import lustre/attribute as attr
 import lustre/element
 import lustre/element/html
 import lustre/element/svg
 import plinth/browser/document
 import styles/modules/loading_module_css as css
-import types.{type PageProps}
+import utils
 
 pub fn element() {
   document.set_title("loading")
@@ -50,6 +51,7 @@ pub fn element() {
   ])
 }
 
-pub fn page(_: PageProps) {
-  element()
+pub fn register() {
+  lustre.element(element())
+  |> utils.register_with_random_name
 }

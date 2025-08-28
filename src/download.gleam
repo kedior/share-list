@@ -4,7 +4,6 @@ import ffi/ffi
 import gleam/bit_array
 import gleam/dict
 import gleam/dynamic/decode
-import gleam/function
 import gleam/int
 import gleam/javascript/promise
 import gleam/json
@@ -22,43 +21,29 @@ import plinth/browser/element as dom_element
 import plinth/browser/file
 import plinth/javascript/console
 import styles/modules/download_module_css as css
-import types.{type PageProps}
 import utils
 
-const component_name = "download-page"
+pub fn register() {
+  lustre.component(init, update, view, [
+    component.on_property_change("props", {
+      use props <- decode.map(decode.dict(decode.string, decode.string))
+      let try_parse_props = {
+        use src <- result.try(props |> dict.get("src"))
+        use key <- result.try(props |> dict.get("key"))
+        let filename =
+          props |> dict.get("filename") |> result.unwrap("unknown file")
 
-pub fn register() -> Result(Nil, lustre.Error) {
-  let comp =
-    lustre.component(init, update, view, [
-      component.on_property_change("props", {
-        use props <- decode.map(decode.dict(decode.string, decode.string))
-        let try_parse_props = {
-          use src <- result.try(props |> dict.get("src"))
-          use key <- result.try(props |> dict.get("key"))
-          let filename =
-            props |> dict.get("filename") |> result.unwrap("unknown file")
-
-          // history reasons
-          let next_src = utils.wrap_src(src)
-          Ok(Props(next_src, key, filename))
-        }
-        case try_parse_props {
-          Ok(props) -> PropsChange(props)
-          Error(Nil) -> InvalidProps
-        }
-      }),
-    ])
-
-  lustre.register(comp, component_name)
-}
-
-pub fn page(props: PageProps) -> Element(msg) {
-  let props_json =
-    props
-    |> json.dict(function.identity, json.string)
-    |> attr.property("props", _)
-
-  element.element(component_name, [props_json], [])
+        // history reasons
+        let next_src = utils.wrap_src(src)
+        Ok(Props(next_src, key, filename))
+      }
+      case try_parse_props {
+        Ok(props) -> PropsChange(props)
+        Error(Nil) -> InvalidProps
+      }
+    }),
+  ])
+  |> utils.register_with_random_name
 }
 
 // MODEL -----------------------------------------------------------------------

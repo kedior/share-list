@@ -1,7 +1,6 @@
 // IMPORTS ---------------------------------------------------------------------
 import gleam/dict
 import gleam/dynamic/decode
-import gleam/json
 import gleam/result
 import gleam/string
 import lustre
@@ -14,44 +13,30 @@ import plinth/browser/document
 import styles/hljs_ant_design_css
 import styles/mdparser_css
 import styles/modules/markdown_module_css as css
-import types.{type PageProps}
 import utils
 
-const component_name = "markdown-body"
+pub fn register() {
+  lustre.component(init, update, view, [
+    component.on_property_change("props", {
+      use props <- decode.map(decode.dict(decode.string, decode.string))
+      let try_parse_props = {
+        use src <- result.try(props |> dict.get("src"))
+        use key <- result.try(props |> dict.get("key"))
+        use content <- result.try(props |> dict.get("content"))
 
-pub fn register() -> Result(Nil, lustre.Error) {
-  let comp =
-    lustre.component(init, update, view, [
-      component.on_property_change("props", {
-        let list_decoder = utils.json_decode_by_keys(["src", "key", "content"])
-        use vals <- decode.map(list_decoder)
-        case vals {
-          [src, key, content] -> {
-            // history shared link need this
-            utils.try_render_html(content)
-            ReceiveQuicContent(Props(src:, key:, content:))
-          }
-          _ -> ReceiveFailed
+        Ok(Props(src, key, content))
+      }
+      case try_parse_props {
+        Ok(props) -> {
+          // history shared link need this
+          utils.try_render_html(props.content)
+          ReceiveQuicContent(props)
         }
-      }),
-    ])
-
-  lustre.register(comp, component_name)
-}
-
-pub fn page(content: String, props: PageProps) -> Element(msg) {
-  let extract = fn(key) {
-    #(key, props |> dict.get(key) |> result.unwrap("") |> json.string)
-  }
-  let props_json =
-    json.object([
-      extract("src"),
-      extract("key"),
-      #("content", json.string(content)),
-    ])
-    |> attribute.property("props", _)
-
-  element.element(component_name, [props_json], [])
+        _ -> ReceiveFailed
+      }
+    }),
+  ])
+  |> utils.register_with_random_name
 }
 
 // MODEL -----------------------------------------------------------------------
