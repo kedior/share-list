@@ -1,4 +1,3 @@
-import fallback
 import ffi/ffi
 import gleam/dict
 import gleam/dynamic/decode
@@ -6,6 +5,7 @@ import gleam/result
 import lustre
 import lustre/component
 import lustre/effect
+import lustre/element
 import utils
 
 fn init(_) {
@@ -17,7 +17,7 @@ fn update(_model, _msg) {
 }
 
 fn view(_model) {
-  fallback.element()
+  element.none()
 }
 
 pub fn register() {
