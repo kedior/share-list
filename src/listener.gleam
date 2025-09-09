@@ -10,25 +10,30 @@ import lustre/attribute
 import lustre/component
 import lustre/effect.{type Effect}
 import lustre/element.{type Element}
+import page
 import plinth/browser/window
-import router.{type PageProps, type Router, do_route, new_router, router_decoder}
+import plinth/javascript/console
+import router
 import utils
 
 pub fn register() {
   lustre.component(init, update, view, [
     component.on_property_change("router", {
-      use json_str <- decode.map(decode.string)
-      let assert Ok(router) = json.parse(json_str, router_decoder())
-      RouterChange(router)
+      use r <- decode.map(router.decoder())
+      console.log(r)
+      RouterChange(r)
     }),
   ])
   |> utils.register_with_random_name()
 }
 
+pub type HashProps =
+  dict.Dict(String, String)
+
 // MODEL -----------------------------------------------------------------------
 
 type Model {
-  Model(page_type: String, props: PageProps, router: Router)
+  Model(page_type: String, props: HashProps, router: router.Router)
 }
 
 fn init(_) -> #(Model, Effect(Msg)) {
@@ -49,14 +54,14 @@ fn init(_) -> #(Model, Effect(Msg)) {
     params |> HashChange |> dispatch
   }
 
-  #(Model("", dict.new(), new_router([], "")), eff)
+  #(Model("", dict.new(), router.new([], "")), eff)
 }
 
 // UPDATE ----------------------------------------------------------------------
 
 type Msg {
-  RouterChange(router: Router)
-  HashChange(props: PageProps)
+  RouterChange(router: router.Router)
+  HashChange(props: HashProps)
 }
 
 fn update(model: Model, msg: Msg) -> #(Model, Effect(Msg)) {
@@ -77,8 +82,8 @@ fn update(model: Model, msg: Msg) -> #(Model, Effect(Msg)) {
 // VIEW ------------------------------------------------------------------------
 
 fn view(model: Model) -> Element(Msg) {
-  let page = do_route(model.router, model.page_type)
-  router.create_page(page, [
+  let page = router.route(model.router, model.page_type)
+  page.create(page, [
     attribute.property(
       "props",
       json.dict(model.props, function.identity, json.string),

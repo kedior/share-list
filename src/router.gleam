@@ -4,70 +4,29 @@ import gleam/function
 import gleam/json
 import gleam/list
 import gleam/result
-import lustre/attribute
-import lustre/element
+import page
 
-pub type PageProps =
-  dict.Dict(String, String)
-
-// #############################################################
-
-pub type Page {
-  Page(name: String, with_props: PageProps)
+pub opaque type Router {
+  Router(router: dict.Dict(String, page.Page), default: String)
 }
 
-pub fn page_to_json(page: Page) {
-  json.object([
-    #("name", json.string(page.name)),
-    #("with_props", json.dict(page.with_props, function.identity, json.string)),
-  ])
-}
-
-pub fn page_decoder() {
-  use name <- decode.field("name", decode.string)
-  use with_props <- decode.field(
-    "with_props",
-    decode.dict(decode.string, decode.string),
-  )
-  decode.success(Page(name:, with_props:))
-}
-
-pub fn create_page(page: Page, attr) {
-  element.element(
-    page.name,
-    list.append(attr, {
-      let kvs = page.with_props |> dict.to_list
-      use kv <- list.map(kvs)
-      attribute.property(kv.0, json.string(kv.1))
-    }),
-    [],
-  )
-}
-
-// #############################################################
-
-pub type Router {
-  Router(router: dict.Dict(String, Page), default: String)
-}
-
-pub fn router_to_json_str(router: Router) {
+pub fn to_json(router: Router) {
   json.object([
     #("default", json.string(router.default)),
-    #("router", json.dict(router.router, function.identity, page_to_json)),
+    #("router", json.dict(router.router, function.identity, page.to_json)),
   ])
-  |> json.to_string
 }
 
-pub fn router_decoder() {
+pub fn decoder() {
   use default <- decode.field("default", decode.string)
   use router <- decode.field(
     "router",
-    decode.dict(decode.string, page_decoder()),
+    decode.dict(decode.string, page.decoder()),
   )
   decode.success(Router(router:, default:))
 }
 
-pub fn new_router(from: List(#(List(String), Page)), default: String) {
+pub fn new(from: List(#(List(String), page.Page)), default: String) {
   from
   |> list.flat_map(fn(pair) {
     let #(ks, v) = pair
@@ -77,11 +36,11 @@ pub fn new_router(from: List(#(List(String), Page)), default: String) {
   |> Router(default)
 }
 
-pub fn do_route(router: Router, page_type: String) {
+pub fn route(router: Router, page_type: String) {
   router.router
   |> dict.get(page_type)
   |> result.unwrap({
     dict.get(router.router, router.default)
-    |> result.unwrap(Page("div", dict.new()))
+    |> result.unwrap(page.new("div"))
   })
 }
