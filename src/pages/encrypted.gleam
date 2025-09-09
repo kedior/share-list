@@ -1,25 +1,27 @@
 // IMPORTS ---------------------------------------------------------------------
-import fallback
 import gleam/dict
 import gleam/dynamic/decode
 import gleam/function
 import gleam/json
 import gleam/result
-import loading
+import listener
 import lustre
 import lustre/attribute
 import lustre/component
 import lustre/effect.{type Effect}
 import lustre/element.{type Element}
-import router.{type PageProps, type Router, do_route, new_router, router_decoder}
+import page
+import pages/fallback
+import pages/loading
+import router
 import utils
 
 pub fn register() {
   lustre.component(init, update, view, [
     component.on_property_change("router", {
       use json_str <- decode.map(decode.string)
-      let assert Ok(router) = json.parse(json_str, router_decoder())
-      MsgRouterChange(router)
+      let assert Ok(r) = json.parse(json_str, router.decoder())
+      MsgRouterChange(r)
     }),
     component.on_property_change("props", {
       use props <- decode.map(decode.dict(decode.string, decode.string))
@@ -50,7 +52,7 @@ type Status {
 }
 
 type Props {
-  Props(page_type: String, src: String, key: String, other: PageProps)
+  Props(page_type: String, src: String, key: String, other: listener.HashProps)
 }
 
 fn empty_prop() {
@@ -58,17 +60,17 @@ fn empty_prop() {
 }
 
 type Model {
-  Model(status: Status, props: Props, router: Router)
+  Model(status: Status, props: Props, router: router.Router)
 }
 
 fn init(_) -> #(Model, Effect(Msg)) {
-  #(Model(Loading, empty_prop(), new_router([], "")), effect.none())
+  #(Model(Loading, empty_prop(), router.new([], "")), effect.none())
 }
 
 // UPDATE ----------------------------------------------------------------------
 
 type Msg {
-  MsgRouterChange(Router)
+  MsgRouterChange(router.Router)
   MsgPropsChange(Props)
   MsgSuccess(String)
   MsgFailed
@@ -95,7 +97,8 @@ fn props_change_effect(old_model: Model, new_model: Model) {
   let old_type = old_model.props.page_type
   let new_type = new_model.props.page_type
 
-  let page_changed = do_route(old_r, old_type) != do_route(new_r, new_type)
+  let page_changed =
+    router.route(old_r, old_type) != router.route(new_r, new_type)
   let source_changed = is_source_changed(old_model.props, new_model.props)
   case page_changed, source_changed {
     True, _ | _, True -> do_fetch_content(new_model, dispatch)
@@ -126,8 +129,8 @@ fn view(model: Model) -> Element(Msg) {
     Failed -> fallback.element()
     Success(content) -> {
       let next_props = model.props.other |> dict.insert("content", content)
-      let page = do_route(model.router, model.props.page_type)
-      router.create_page(page, [
+      let p = router.route(model.router, model.props.page_type)
+      page.create(p, [
         attribute.property(
           "props",
           json.dict(next_props, function.identity, json.string),

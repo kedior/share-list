@@ -1,19 +1,19 @@
 // IMPORTS ---------------------------------------------------------------------
 
-import download
-import encrypted
-import fallback
-import gleam/dict
 import gleam/json
 import listener
-import loading
 import lustre
 import lustre/attribute
 import lustre/element
 import lustre/element/html
-import markdown
-import rawhtml
-import router.{Page, new_router, router_to_json_str}
+import page
+import pages/download
+import pages/encrypted
+import pages/fallback
+import pages/loading
+import pages/markdown
+import pages/rawhtml
+import router
 import styles/katex_css
 import styles/modules/global_module_css
 
@@ -23,10 +23,10 @@ pub fn main() {
   let enc_r = {
     let markdown_name = markdown.register()
     let raw_html_name = rawhtml.register()
-    new_router(
+    router.new(
       [
-        #(["md", "markdown"], Page(markdown_name, dict.new())),
-        #(["html"], Page(raw_html_name, dict.new())),
+        #(["md", "markdown"], page.new(markdown_name)),
+        #(["html"], page.new(raw_html_name)),
       ],
       "md",
     )
@@ -38,19 +38,17 @@ pub fn main() {
     let loading_name = loading.register()
     let enc_name = encrypted.register()
 
-    new_router(
+    router.new(
       [
-        #(["fallback", "404"], Page(fallback_name, dict.new())),
-        #(["loading", "load"], Page(loading_name, dict.new())),
-        #(["download"], Page(download_name, dict.new())),
+        #(["fallback", "404"], page.new(fallback_name)),
+        #(["loading", "load"], page.new(loading_name)),
+        #(["download"], page.new(download_name)),
         #(
           [""],
-          Page(
-            enc_name,
-            dict.from_list([
-              #("router", router_to_json_str(enc_r)),
+          page.new(enc_name)
+            |> page.with_props([
+              #("router", enc_r |> router.to_json |> json.to_string),
             ]),
-          ),
         ),
       ],
       "",
@@ -63,8 +61,7 @@ pub fn main() {
       listener_name,
       [
         r
-        |> router_to_json_str
-        |> json.string
+        |> router.to_json
         |> attribute.property("router", _),
       ],
       [],

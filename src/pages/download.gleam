@@ -1,5 +1,4 @@
 // IMPORTS ---------------------------------------------------------------------
-import fallback
 import ffi/ffi
 import gleam/bit_array
 import gleam/dict
@@ -16,6 +15,7 @@ import lustre/element.{type Element}
 import lustre/element/html
 import lustre/element/svg
 import lustre/event
+import pages/fallback
 import plinth/browser/document
 import plinth/browser/element as dom_element
 import plinth/browser/file
