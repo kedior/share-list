@@ -11,13 +11,16 @@ import lustre/attribute
 import lustre/component
 import lustre/effect.{type Effect}
 import lustre/element.{type Element}
-import markdown
-import rawhtml
-import types.{type PageProps, type Router, do_route, new_router}
+import router.{type PageProps, type Router, do_route, new_router, router_decoder}
 import utils
 
 pub fn register() {
   lustre.component(init, update, view, [
+    component.on_property_change("router", {
+      use json_str <- decode.map(decode.string)
+      let assert Ok(router) = json.parse(json_str, router_decoder())
+      MsgRouterChange(router)
+    }),
     component.on_property_change("props", {
       use props <- decode.map(decode.dict(decode.string, decode.string))
       let try_parse_props = {
@@ -59,18 +62,7 @@ type Model {
 }
 
 fn init(_) -> #(Model, Effect(Msg)) {
-  let markdown_name = markdown.register()
-  let raw_html_name = rawhtml.register()
-
-  let router =
-    new_router(
-      [
-        #(["md", "markdown"], markdown_name),
-        #(["html"], raw_html_name),
-      ],
-      markdown_name,
-    )
-  #(Model(Loading, empty_prop(), router), effect.none())
+  #(Model(Loading, empty_prop(), new_router([], "")), effect.none())
 }
 
 // UPDATE ----------------------------------------------------------------------
@@ -78,7 +70,7 @@ fn init(_) -> #(Model, Effect(Msg)) {
 type Msg {
   MsgRouterChange(Router)
   MsgPropsChange(Props)
-  MsgSuccess(Model)
+  MsgSuccess(String)
   MsgFailed
 }
 
@@ -90,25 +82,24 @@ fn do_fetch_content(model: Model, dispatch) {
   use res <- utils.await_get_content(model.props.src, model.props.key)
   case res {
     Ok(content) -> {
-      let next_model = Model(..model, status: Success(content))
-      dispatch(MsgSuccess(next_model))
+      dispatch(MsgSuccess(content))
     }
     Error(_) -> dispatch(MsgFailed)
   }
 }
 
-fn props_change_effect(model: Model, props: Props) {
+fn props_change_effect(old_model: Model, new_model: Model) {
   use dispatch <- effect.from()
-  let r = model.router
-  let old_type = model.props.page_type
-  let new_type = props.page_type
-  let page_changed = do_route(r, old_type) != do_route(r, new_type)
-  let source_changed = is_source_changed(model.props, props)
+  let old_r = old_model.router
+  let new_r = new_model.router
+  let old_type = old_model.props.page_type
+  let new_type = new_model.props.page_type
 
-  let next_model = Model(..model, props:)
+  let page_changed = do_route(old_r, old_type) != do_route(new_r, new_type)
+  let source_changed = is_source_changed(old_model.props, new_model.props)
   case page_changed, source_changed {
-    True, _ | _, True -> do_fetch_content(next_model, dispatch)
-    False, False -> dispatch(MsgSuccess(next_model))
+    True, _ | _, True -> do_fetch_content(new_model, dispatch)
+    False, False -> Nil
   }
 }
 
@@ -116,13 +107,14 @@ fn update(model: Model, msg: Msg) -> #(Model, Effect(Msg)) {
   case msg {
     MsgRouterChange(router) -> #(Model(..model, router:), effect.none())
     MsgPropsChange(props) -> {
-      #(
-        Model(..model, status: Loading, props:),
-        props_change_effect(model, props),
-      )
+      let next_model = Model(..model, status: Loading, props:)
+      #(next_model, props_change_effect(model, next_model))
     }
     MsgFailed -> #(Model(..model, status: Failed), effect.none())
-    MsgSuccess(model) -> #(model, effect.none())
+    MsgSuccess(content) -> #(
+      Model(..model, status: Success(content)),
+      effect.none(),
+    )
   }
 }
 
@@ -134,16 +126,13 @@ fn view(model: Model) -> Element(Msg) {
     Failed -> fallback.element()
     Success(content) -> {
       let next_props = model.props.other |> dict.insert("content", content)
-      do_route(model.router, model.props.page_type)
-      |> element.element(
-        [
-          attribute.property(
-            "props",
-            json.dict(next_props, function.identity, json.string),
-          ),
-        ],
-        [],
-      )
+      let page = do_route(model.router, model.props.page_type)
+      router.create_page(page, [
+        attribute.property(
+          "props",
+          json.dict(next_props, function.identity, json.string),
+        ),
+      ])
     }
   }
 }
