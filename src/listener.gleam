@@ -12,7 +12,6 @@ import lustre/effect.{type Effect}
 import lustre/element.{type Element}
 import page
 import plinth/browser/window
-import plinth/javascript/console
 import router
 import utils
 
@@ -20,7 +19,6 @@ pub fn register() {
   lustre.component(init, update, view, [
     component.on_property_change("router", {
       use r <- decode.map(router.decoder())
-      console.log(r)
       RouterChange(r)
     }),
   ])
