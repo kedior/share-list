@@ -20,7 +20,13 @@ await rm(entryJsPath);
 
 const safeJs = bundledJs.replace(/<\/script>/g, "<\\/script>");
 const entryHtmlPath = "./out/index.html";
-const htmlCode = `<!doctype html><html lang="en"><script type="module">${safeJs}</script></html>`;
+const htmlCode = `
+<!doctype html>
+  <html lang="en">
+    <meta charset="utf-8">
+    <script type="module">${safeJs}</script>
+  </html>
+`;
 await writeFile(entryHtmlPath, htmlCode);
 console.log(`Build complete: ${entryHtmlPath}`);
 
