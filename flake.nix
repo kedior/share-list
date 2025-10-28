@@ -11,8 +11,9 @@
       let pkgs = nixpkgs.legacyPackages.${system};
       in {
         devShells.default = pkgs.mkShell {
-          buildInputs = with pkgs; [ bun gleam ];
+          buildInputs = with pkgs; [ bashInteractive bun gleam ];
           shellHook = ''
+            export SHELL=${pkgs.bashInteractive}/bin/bash
             export PS1="(nix-dev) $PS1"
             echo "Bun version: $(bun --version)"
             echo "Gleam version: $(gleam --version)"
