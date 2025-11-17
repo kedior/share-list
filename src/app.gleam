@@ -15,8 +15,8 @@ import pages/markdown
 import pages/rawhtml
 import router
 import styles/exo_font_css
+import styles/jetbrains_font_css
 import styles/katex_css
-import styles/maple_mono_css
 import styles/modules/global_module_css
 
 // MAIN ------------------------------------------------------------------------
@@ -108,8 +108,7 @@ fn app(content: element.Element(msg)) {
     html.body([], [
       // fuck fonts, must inject to global body
       html.style([], exo_font_css.css),
-      // html.style([], jetbrains_font_css.css),
-      html.style([], maple_mono_css.css),
+      html.style([], jetbrains_font_css.css),
       html.style([], katex_css.css),
       html.style([], global_module_css.css),
       content,
