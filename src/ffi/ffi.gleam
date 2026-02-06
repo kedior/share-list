@@ -1,11 +1,15 @@
 import gleam/javascript/promise.{type Promise}
 import plinth/browser/element.{type Element}
+import plinth/browser/window
 
 @external(javascript, "./export.ts", "domClick")
 pub fn dom_click(dom: Element) -> Nil
 
 @external(javascript, "./export.ts", "historyReplaceState")
 pub fn history_replace_state(url: String) -> Nil
+
+@external(javascript, "./export.ts", "windowLocationReplace")
+pub fn window_location_replace(w: window.Window, url: String) -> Nil
 
 @external(javascript, "./export.ts", "decodeDataFromImage")
 pub fn decode_data_from_img(img_url: String) -> Promise(Result(BitArray, Nil))

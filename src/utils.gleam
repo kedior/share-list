@@ -7,6 +7,7 @@ import gleam/result
 import gleam/string
 import gleam/uri
 import lustre
+import plinth/browser/location
 import plinth/browser/window
 
 pub fn get_url_params() -> dict.Dict(String, String) {
@@ -20,8 +21,10 @@ pub fn get_url_params() -> dict.Dict(String, String) {
     |> result.unwrap([])
   }
 
-  let hash_params = window.get_hash() |> parser |> dict.from_list
-  let params_list = window.get_search() |> parser
+  let win = window.self()
+  let hash_params =
+    win |> window.location |> location.hash |> parser |> dict.from_list
+  let params_list = win |> window.location |> location.search |> parser
 
   // filter out kv that not in hash_params
   {
@@ -37,7 +40,7 @@ pub fn get_url_params() -> dict.Dict(String, String) {
 }
 
 pub fn param_dict_to_hashed_url(params: dict.Dict(String, String)) {
-  window.pathname()
+  window.self() |> window.location |> location.pathname()
   <> "#"
   <> {
     params
@@ -88,7 +91,7 @@ pub fn guess_title(content: String) -> String {
 pub fn try_render_html(content: String) {
   case
     {
-      use flag <- list.any(["<!DOCTYPE html", "<!doctype html"])
+      use flag <- list.any(["<!DOCTYPE html", "<!doctype html", "<html"])
       content |> string.trim_start |> string.starts_with(flag)
     }
   {
@@ -98,7 +101,8 @@ pub fn try_render_html(content: String) {
         get_url_params()
         |> dict.insert("d", "html")
         |> param_dict_to_hashed_url
-      window.set_location(window.self(), next_href)
+      // window.set_location(window.self(), next_href)
+      ffi.window_location_replace(window.self(), next_href)
     }
   }
 }
