@@ -19,6 +19,10 @@ export const domClick = (dom: HTMLElement) => {
   dom.click();
 };
 
+export const windowLocationReplace = (w: Window, url: String) => {
+  w.location.replace(url);
+};
+
 export const historyReplaceState = (url: String) => {
   return history.replaceState(null, "", url);
 };
