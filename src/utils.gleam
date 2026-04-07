@@ -116,7 +116,7 @@ pub fn wrap_src(src: String) -> String {
 
 fn random_str(len: Int, from: String) {
   let from_len = string.length(from)
-  list.range(1, len)
+  list.repeat(0, len)
   |> list.map(fn(_) {
     int.random(from_len)
     |> string.drop_start(from, _)
