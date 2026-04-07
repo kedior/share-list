@@ -115,15 +115,17 @@ pub fn wrap_src(src: String) -> String {
 }
 
 fn random_str(len: Int, from: String) {
-  let from_len = string.length(from)
-  list.repeat(0, len)
-  |> list.map(fn(_) {
-    int.random(from_len)
-    |> string.drop_start(from, _)
-    |> string.first()
-    |> result.unwrap("")
-  })
-  |> string.join("")
+  case len {
+    0 -> ""
+    _ ->
+      random_str(len - 1, from)
+      <> {
+        from
+        |> string.length
+        |> int.random
+        |> string.slice(from, _, 1)
+      }
+  }
 }
 
 const numbers_strings = "0123456789"
