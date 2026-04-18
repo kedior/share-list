@@ -72,8 +72,8 @@ pub fn wrap_src(src: String) -> String {
     False -> "bin/" <> src
   }
   let src = case src |> string.ends_with(".x") {
-    True -> src
-    False -> src <> ".png"
+    True -> src <> ".png"
+    False -> src
   }
   let src = case src |> string.ends_with(".x.png") {
     True -> src
@@ -83,13 +83,17 @@ pub fn wrap_src(src: String) -> String {
 }
 
 pub fn unwrap_src(src: String) -> String {
+  let src = case src |> string.ends_with(".x") {
+    True -> src |> string.drop_end(2)
+    False -> src
+  }
   let src = case src |> string.ends_with(".x.png") {
     True -> src |> string.drop_end(6)
     False -> src
   }
   let src = case src |> string.starts_with("bin/") {
     True -> src |> string.drop_start(4)
-    False -> "bin/" <> src
+    False -> src
   }
   src
 }
