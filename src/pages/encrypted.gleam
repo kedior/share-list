@@ -29,11 +29,7 @@ pub fn register() {
         use src <- result.try(props |> dict.get("src"))
         use key <- result.try(props |> dict.get("key"))
         let d = props |> dict.get("d") |> result.unwrap("")
-        // history reasons
-        let next_src = utils.wrap_src(src)
-        let next_props = dict.insert(props, "src", next_src)
-
-        Ok(Props(d, next_src, key, next_props))
+        Ok(Props(d, src, key, props))
       }
       case try_parse_props {
         Ok(props) -> MsgPropsChange(props)

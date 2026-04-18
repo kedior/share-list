@@ -5,49 +5,9 @@ import gleam/javascript/promise
 import gleam/list
 import gleam/result
 import gleam/string
-import gleam/uri
+import hash
 import lustre
-import plinth/browser/location
 import plinth/browser/window
-
-pub fn get_url_params() -> dict.Dict(String, String) {
-  let parser = fn(res) {
-    let str = res |> result.unwrap("")
-    case str |> string.contains("=") {
-      True -> str
-      False -> ""
-    }
-    |> uri.parse_query
-    |> result.unwrap([])
-  }
-
-  let win = window.self()
-  let hash_params =
-    win |> window.location |> location.hash |> parser |> dict.from_list
-  let params_list = win |> window.location |> location.search |> parser
-
-  // filter out kv that not in hash_params
-  {
-    use #(k, v) <- list.filter_map(params_list)
-    case hash_params |> dict.has_key(k) {
-      True -> Error(Nil)
-      False -> Ok(#(k, v))
-    }
-  }
-  // merge to hash_params
-  |> dict.from_list
-  |> dict.merge(hash_params)
-}
-
-pub fn param_dict_to_hashed_url(params: dict.Dict(String, String)) {
-  window.self() |> window.location |> location.pathname()
-  <> "#"
-  <> {
-    params
-    |> dict.to_list
-    |> uri.query_to_string
-  }
-}
 
 pub fn await_get_content(
   src: String,
@@ -98,9 +58,9 @@ pub fn try_render_html(content: String) {
     False -> Nil
     True -> {
       let next_href =
-        get_url_params()
+        hash.get_url_params()
         |> dict.insert("d", "html")
-        |> param_dict_to_hashed_url
+        |> hash.param_dict_to_hashed_href
       // window.set_location(window.self(), next_href)
       ffi.window_location_replace(window.self(), next_href)
     }

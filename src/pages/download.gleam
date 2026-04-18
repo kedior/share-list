@@ -32,10 +32,7 @@ pub fn register() {
         use key <- result.try(props |> dict.get("key"))
         let filename =
           props |> dict.get("filename") |> result.unwrap("unknown file")
-
-        // history reasons
-        let next_src = utils.wrap_src(src)
-        Ok(Props(next_src, key, filename))
+        Ok(Props(src, key, filename))
       }
       case try_parse_props {
         Ok(props) -> PropsChange(props)
