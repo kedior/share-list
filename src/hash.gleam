@@ -1,4 +1,5 @@
 import gleam/dict
+import gleam/list
 import gleam/result
 import gleam/string
 import gleam/uri
@@ -48,7 +49,11 @@ pub fn param_dict_to_hashed_href(params: dict.Dict(String, String)) {
   c_location |> location.origin
   <> c_location |> location.pathname
   <> "#/"
-  <> string.join([d, src, key], "/")
+  <> case d {
+    "md" | "markdown" -> [src, key]
+    _ -> [d, src, key]
+  }
+  |> string.join("/")
 }
 
 fn get_query_params(queries: String) -> dict.Dict(String, String) {
@@ -59,11 +64,13 @@ fn get_query_params(queries: String) -> dict.Dict(String, String) {
 }
 
 fn get_path_params(path: String) -> dict.Dict(String, String) {
-  let sp = case path |> string.split("/") {
-    [_, d, src, key] -> [#("d", d), #("src", src), #("key", key)]
+  let sps = path |> string.split("/") |> list.filter(fn(x) { x != "" })
+  case sps {
+    [d, src, key] -> [#("d", d), #("src", src), #("key", key)]
+    [src, key] -> [#("d", "md"), #("src", src), #("key", key)]
     _ -> []
   }
-  dict.from_list(sp)
+  |> dict.from_list
 }
 
 pub fn wrap_src(src: String) -> String {
