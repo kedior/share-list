@@ -14,8 +14,8 @@ import pages/loading
 import pages/markdown
 import pages/rawhtml
 import router
-import styles/geist_font_css
-import styles/geist_mono_font_css
+import styles/ibm_plex_mono_css
+import styles/ibm_plex_sans_css
 import styles/katex_css
 import styles/modules/global_module_css
 
@@ -107,8 +107,8 @@ fn app(content: element.Element(msg)) {
     ]),
     html.body([], [
       // fuck fonts, must inject to global body
-      html.style([], geist_font_css.css),
-      html.style([], geist_mono_font_css.css),
+      html.style([], ibm_plex_sans_css.css),
+      html.style([], ibm_plex_mono_css.css),
       html.style([], katex_css.css),
       html.style([], global_module_css.css),
       content,
