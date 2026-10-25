@@ -3,6 +3,7 @@ import gleam/dict
 import gleam/dynamic/decode
 import gleam/result
 import gleam/string
+import hash
 import lustre
 import lustre/attribute
 import lustre/component
@@ -28,7 +29,7 @@ pub fn register() {
       case try_parse_props {
         Ok(props) -> {
           // history shared link need this
-          utils.try_render_html(props.content)
+          hash.try_render_html(props.content)
           ReceiveQuicContent(props)
         }
         _ -> ReceiveFailed

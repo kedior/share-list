@@ -1,3 +1,4 @@
+import ffi/ffi
 import gleam/dict
 import gleam/list
 import gleam/result
@@ -5,6 +6,7 @@ import gleam/string
 import gleam/uri
 import plinth/browser/location
 import plinth/browser/window
+import utils
 
 pub fn get_url_params() -> dict.Dict(String, String) {
   let win = window.self()
@@ -23,7 +25,8 @@ pub fn get_url_params() -> dict.Dict(String, String) {
   // merge to hash_params
   let ret = hash_params |> dict.merge(raw_params)
   // wrap src
-  let next_src = ret |> dict.get("src") |> result.unwrap("unknown") |> wrap_src
+  let next_src =
+    ret |> dict.get("src") |> result.unwrap("unknown") |> utils.wrap_src
   ret |> dict.insert("src", next_src)
 }
 
@@ -56,6 +59,25 @@ pub fn param_dict_to_hashed_href(params: dict.Dict(String, String)) {
   |> string.join("/")
 }
 
+pub fn try_render_html(content: String) {
+  case
+    {
+      use flag <- list.any(["<!DOCTYPE html", "<!doctype html", "<html"])
+      content |> string.trim_start |> string.starts_with(flag)
+    }
+  {
+    False -> Nil
+    True -> {
+      let next_href =
+        get_url_params()
+        |> dict.insert("d", "html")
+        |> param_dict_to_hashed_href
+      // window.set_location(window.self(), next_href)
+      ffi.window_location_replace(window.self(), next_href)
+    }
+  }
+}
+
 fn get_query_params(queries: String) -> dict.Dict(String, String) {
   queries
   |> uri.parse_query
@@ -73,23 +95,7 @@ fn get_path_params(path: String) -> dict.Dict(String, String) {
   |> dict.from_list
 }
 
-pub fn wrap_src(src: String) -> String {
-  let src = case src |> string.starts_with("bin/") {
-    True -> src
-    False -> "bin/" <> src
-  }
-  let src = case src |> string.ends_with(".x") {
-    True -> src <> ".png"
-    False -> src
-  }
-  let src = case src |> string.ends_with(".x.png") {
-    True -> src
-    False -> src <> ".x.png"
-  }
-  src
-}
-
-pub fn unwrap_src(src: String) -> String {
+fn unwrap_src(src: String) -> String {
   src
   |> string.remove_suffix(".x")
   |> string.remove_suffix(".x.png")

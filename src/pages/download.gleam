@@ -76,7 +76,7 @@ type Msg {
 }
 
 type BoxedFile {
-  BoxedFile(filename: String, mime: String, base64_data: String)
+  BoxedFile(filename: String, base64_data: String)
 }
 
 fn triggle_download(boxed_file: BoxedFile) {
@@ -103,9 +103,8 @@ fn parse_and_download(props: Props, data: BitArray, dispatch: fn(Msg) -> Nil) {
       use data <- result.try(res)
       let decoder = {
         use filename <- decode.field("filename", decode.string)
-        use mime <- decode.field("mimetype", decode.string)
         use base64_data <- decode.field("data", decode.string)
-        decode.success(BoxedFile(filename, mime, base64_data))
+        decode.success(BoxedFile(filename, base64_data))
       }
       case json.parse(data, decoder) {
         Error(err) -> Error(console.log(err))

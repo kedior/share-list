@@ -1,15 +1,12 @@
 import ffi/ffi
-import gleam/dict
 import gleam/int
 import gleam/javascript/promise
 import gleam/list
 import gleam/result
 import gleam/string
-import hash
 import lustre
 import lustre/effect
 import plinth/browser/document
-import plinth/browser/window
 
 pub fn await_get_content(
   src: String,
@@ -47,30 +44,20 @@ pub fn guess_title(content: String) -> String {
   |> result.unwrap("Awesome Page")
 }
 
-pub fn try_render_html(content: String) {
-  case
-    {
-      use flag <- list.any(["<!DOCTYPE html", "<!doctype html", "<html"])
-      content |> string.trim_start |> string.starts_with(flag)
-    }
-  {
-    False -> Nil
-    True -> {
-      let next_href =
-        hash.get_url_params()
-        |> dict.insert("d", "html")
-        |> hash.param_dict_to_hashed_href
-      // window.set_location(window.self(), next_href)
-      ffi.window_location_replace(window.self(), next_href)
-    }
-  }
-}
-
 pub fn wrap_src(src: String) -> String {
-  case src |> string.ends_with(".x") {
+  let src = case src |> string.starts_with("bin/") {
+    True -> src
+    False -> "bin/" <> src
+  }
+  let src = case src |> string.ends_with(".x") {
     True -> src <> ".png"
     False -> src
   }
+  let src = case src |> string.ends_with(".x.png") {
+    True -> src
+    False -> src <> ".x.png"
+  }
+  src
 }
 
 fn random_str(len: Int, from: String) {
