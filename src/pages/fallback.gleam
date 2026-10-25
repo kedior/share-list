@@ -1,12 +1,11 @@
 import lustre
 import lustre/attribute
+import lustre/effect
 import lustre/element
 import lustre/element/html
-import plinth/browser/document
 import utils
 
 pub fn element() {
-  document.set_title("404!")
   element.fragment([
     html.div([attribute.style("text-align", "center")], [
       html.h1([], [
@@ -25,7 +24,15 @@ pub fn element() {
   ])
 }
 
+fn init(_) -> #(Nil, effect.Effect(Nil)) {
+  #(Nil, utils.set_title_effect("404!"))
+}
+
+fn update(_model: Nil, _msg: Nil) -> #(Nil, effect.Effect(Nil)) {
+  #(Nil, effect.none())
+}
+
 pub fn register() {
-  lustre.element(element())
+  lustre.component(init, update, fn(_model) { element() }, [])
   |> utils.register_with_random_name
 }

@@ -61,7 +61,7 @@ type Model {
 }
 
 fn init(_) -> #(Model, Effect(Msg)) {
-  #(Model(Idle, Props("", "", "")), effect.none())
+  #(Model(Idle, Props("", "", "")), utils.set_title_effect("File Download"))
 }
 
 // UPDATE ----------------------------------------------------------------------
@@ -150,7 +150,10 @@ fn update(model: Model, msg: Msg) -> #(Model, Effect(Msg)) {
     )
     DownloadFailed -> #(Model(Failed, props: model.props), effect.none())
     DownloadSuccess -> #(Model(..model, status: Complete), effect.none())
-    InvalidProps -> #(Model(..model, status: FallBack), effect.none())
+    InvalidProps -> #(
+      Model(..model, status: FallBack),
+      utils.set_title_effect("404!"),
+    )
   }
 }
 
@@ -163,7 +166,7 @@ fn btn_text(str: String) {
 fn download_svg() {
   svg.svg(
     [
-      attr.attribute("xmlns", "http://www.w3.org/2000/svg"),
+      attr.attribute("xmlns", svg.namespace),
       attr.attribute("viewBox", "0 -960 960 960"),
     ],
     [
@@ -181,7 +184,7 @@ fn complete_svg() {
   svg.svg(
     [
       attr.attribute("viewBox", "0 -960 960 960"),
-      attr.attribute("xmlns", "http://www.w3.org/2000/svg"),
+      attr.attribute("xmlns", svg.namespace),
     ],
     [
       svg.path([
@@ -198,7 +201,7 @@ fn failed_svg() {
   svg.svg(
     [
       attr.attribute("viewBox", "0 -960 960 960"),
-      attr.attribute("xmlns", "http://www.w3.org/2000/svg"),
+      attr.attribute("xmlns", svg.namespace),
     ],
     [
       svg.path([
@@ -263,7 +266,6 @@ fn real_view(model: Model) {
 }
 
 fn view(model: Model) -> Element(Msg) {
-  document.set_title("File Download")
   case model.status {
     FallBack -> fallback.element()
     _ ->

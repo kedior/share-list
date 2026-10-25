@@ -9,7 +9,6 @@ import lustre/component
 import lustre/effect.{type Effect}
 import lustre/element.{type Element}
 import lustre/element/html
-import plinth/browser/document
 import styles/hljs_ant_design_css
 import styles/mdparser_css
 import styles/modules/markdown_module_css as css
@@ -84,18 +83,13 @@ fn get_lazy_content_effect(props: Props) {
   |> result.unwrap(Nil)
 }
 
-fn set_title_effect(content: String) {
-  use _dispatch <- effect.from()
-  content |> utils.guess_title |> document.set_title
-}
-
 fn update(model: Model, msg: Msg) -> #(Model, Effect(Msg)) {
   case msg {
     ReceiveQuicContent(props) -> #(
       Model(props.content),
       effect.batch([
         get_lazy_content_effect(props),
-        set_title_effect(props.content),
+        utils.set_title_effect(utils.guess_title(props.content)),
       ]),
     )
     ReceiveLazyContent(props) -> #(Model(props.content), effect.none())

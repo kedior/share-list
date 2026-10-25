@@ -60,7 +60,10 @@ type Model {
 }
 
 fn init(_) -> #(Model, Effect(Msg)) {
-  #(Model(Loading, empty_prop(), router.new([], "")), effect.none())
+  #(
+    Model(Loading, empty_prop(), router.new([], "")),
+    utils.set_title_effect("loading"),
+  )
 }
 
 // UPDATE ----------------------------------------------------------------------
@@ -107,9 +110,18 @@ fn update(model: Model, msg: Msg) -> #(Model, Effect(Msg)) {
     MsgRouterChange(router) -> #(Model(..model, router:), effect.none())
     MsgPropsChange(props) -> {
       let next_model = Model(..model, status: Loading, props:)
-      #(next_model, props_change_effect(model, next_model))
+      #(
+        next_model,
+        effect.batch([
+          utils.set_title_effect("loading"),
+          props_change_effect(model, next_model),
+        ]),
+      )
     }
-    MsgFailed -> #(Model(..model, status: Failed), effect.none())
+    MsgFailed -> #(
+      Model(..model, status: Failed),
+      utils.set_title_effect("404!"),
+    )
     MsgSuccess(content) -> #(
       Model(..model, status: Success(content)),
       effect.none(),

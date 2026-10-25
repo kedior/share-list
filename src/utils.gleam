@@ -7,6 +7,8 @@ import gleam/result
 import gleam/string
 import hash
 import lustre
+import lustre/effect
+import plinth/browser/document
 import plinth/browser/window
 
 pub fn await_get_content(
@@ -37,12 +39,9 @@ pub fn guess_title(content: String) -> String {
       True -> Ok(trimd)
       False -> Error(Nil)
     })
-    use #(title, _) <- result.try({
-      open_tag
-      |> string.length
-      |> string.drop_start(trimd, _)
-      |> string.split_once(close_tag)
-    })
+    use #(title, _) <- result.try(
+      trimd |> string.remove_prefix(open_tag) |> string.split_once(close_tag),
+    )
     Ok(title)
   }
   |> result.unwrap("Awesome Page")
@@ -107,4 +106,9 @@ pub fn register_with_random_name(component: lustre.App(Nil, model, msg)) {
       name
     }
   }
+}
+
+pub fn set_title_effect(title: String) -> effect.Effect(message) {
+  use _dispatch <- effect.from()
+  document.set_title(title)
 }
