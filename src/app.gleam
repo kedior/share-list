@@ -14,8 +14,6 @@ import pages/loading
 import pages/markdown
 import pages/rawhtml
 import router
-import styles/ibm_plex_mono_css
-import styles/ibm_plex_sans_css
 import styles/katex_css
 import styles/modules/global_module_css
 
@@ -94,7 +92,7 @@ fn app(content: element.Element(msg)) {
         attribute.name("mobile-web-app-capable"),
         attribute.content("yes"),
       ]),
-      html.meta([attribute.name("theme-color"), attribute.content("#f1f7fe")]),
+      html.meta([attribute.name("theme-color"), attribute.content("#ffffff")]),
       html.link([
         attribute.rel("icon"),
         attribute.type_("image/png"),
@@ -106,9 +104,6 @@ fn app(content: element.Element(msg)) {
       ]),
     ]),
     html.body([], [
-      // fuck fonts, must inject to global body
-      html.style([], ibm_plex_sans_css.css),
-      html.style([], ibm_plex_mono_css.css),
       html.style([], katex_css.css),
       html.style([], global_module_css.css),
       content,

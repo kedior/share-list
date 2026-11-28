@@ -3,22 +3,19 @@ import lustre/attribute
 import lustre/effect
 import lustre/element
 import lustre/element/html
+import styles/modules/global_module_css as css
 import utils
 
 pub fn element() {
   element.fragment([
-    html.div([attribute.style("text-align", "center")], [
+    html.style([], css.css),
+    html.div([attribute.class(css.fallback)], [
       html.h1([], [
         html.text("Oops! This page galloped away on a unicorn."),
       ]),
       html.img([
         attribute.attribute("src", "./unicorn.png"),
         attribute.attribute("alt", "Lost Unicorn"),
-        attribute.styles([
-          #("max-width", "300px"),
-          #("margin", "40px auto"),
-          #("display", "block"),
-        ]),
       ]),
     ]),
   ])
